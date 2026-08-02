@@ -23,6 +23,7 @@ export * from './lib/backgrounds/pixel/pixel';
 export * from './lib/backgrounds/pixel-blast/pixel-blast';
 export * from './lib/backgrounds/plasma/plasma';
 export * from './lib/backgrounds/prism/prism';
+export * from './lib/backgrounds/orbital-atlas/orbital-atlas';
 export * from './lib/backgrounds/shape-grid/shape-grid';
 export * from './lib/backgrounds/silk/silk';
 export * from './lib/backgrounds/soft-aurora/soft-aurora';

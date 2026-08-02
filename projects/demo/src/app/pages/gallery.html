@@ -1,58 +1,133 @@
-<section class="relative isolate overflow-hidden border-b border-white/10">
-  <div class="absolute inset-0 -z-10 bg-black">
-    <ngb-aurora [colorStops]="['#5227ff', '#7cff67', '#5227ff']" [amplitude]="1.2" [blend]="0.6" />
-  </div>
-
-  <div class="mx-auto flex min-h-[62vh] max-w-6xl flex-col justify-center px-6 py-24">
-    <p class="mb-4 font-mono text-xs tracking-[0.2em] text-accent uppercase">Angular 22 · Tailwind v4</p>
-    <h1 class="max-w-2xl text-5xl font-semibold tracking-tight text-white sm:text-6xl">
-      Animated backgrounds for&nbsp;Angular.
-    </h1>
-    <p class="mt-5 max-w-xl text-lg text-ink-200/80">
-      {{ tiles.length }} WebGL and canvas backgrounds as standalone components. Signal inputs,
-      SSR-safe, they pause when off-screen and honour <code class="text-ink-200">prefers-reduced-motion</code>.
-    </p>
-    <div class="mt-8 flex flex-wrap gap-3">
-      <a
-        href="#gallery"
-        class="rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-ink-950 transition hover:bg-white/90"
-      >
-        Browse backgrounds
-      </a>
-      <code class="rounded-lg border border-white/15 bg-black/40 px-5 py-2.5 font-mono text-sm text-ink-200">
-        npm i ng-bits
-      </code>
+<div id="top" class="gallery-page">
+  <section class="hero-section" aria-labelledby="hero-title">
+    <div class="hero-tools">
+      <app-language-switcher />
     </div>
-  </div>
-</section>
+    <div class="hero-field" aria-hidden="true">
+      <ngb-aurora
+        class="absolute inset-0 -z-10"
+        [colorStops]="['#363853', '#B497CF', '#5227FF']"
+        [amplitude]="1.66"
+        [blend]="0.5"
+        [speed]="2.79"
+        [intensity]="1"
+        [reducedMotion]="'ignore'"
+      />
+      <div class="hero-grain"></div>
+      <div class="hero-veil"></div>
+    </div>
 
-<section id="gallery" class="mx-auto max-w-6xl px-6 py-16">
-  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-    @for (tile of tiles; track tile.entry.slug) {
-      <a
-        [routerLink]="['/b', tile.entry.slug]"
-        appInView
-        #view="inView"
-        class="group relative block aspect-[16/11] overflow-hidden rounded-xl border border-white/10 transition hover:border-white/25"
-      >
-        <div class="absolute inset-0" [class]="tile.entry.surface">
-          @if (view.visible()) {
-            <ng-container *ngComponentOutlet="tile.entry.component; inputs: tile.inputs" />
-          }
-        </div>
+    <div
+      class="relative mx-auto flex min-h-svh max-w-7xl flex-col justify-center px-5 py-20 sm:px-8 lg:px-12"
+    >
+      <div class="hero-copy max-w-4xl">
+        <p class="eyebrow hero-eyebrow">{{ 'hero.eyebrow' | translate }}</p>
+        <h1 id="hero-title" class="hero-title mt-5">
+          {{ 'hero.title' | translate }}
+        </h1>
+        <p class="hero-description mt-7 max-w-2xl">
+          {{ 'hero.description' | translate }}
+        </p>
 
-        <div
-          class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pt-12"
-        >
-          <div class="flex items-baseline justify-between gap-3">
-            <h3 class="font-medium text-white">{{ tile.entry.name }}</h3>
-            <span class="font-mono text-[10px] tracking-wide text-ink-400 uppercase">
-              {{ tile.entry.engine }}
-            </span>
+        <div class="mt-9 flex flex-wrap items-center gap-3">
+          <a href="#backgrounds" class="button-primary group active:scale-[0.96]">
+            <span>{{ 'hero.explore' | translate }}</span>
+            <ng-icon
+              name="lucideArrowDown"
+              size="17"
+              class="transition-transform duration-300 group-hover:translate-y-0.5"
+              aria-hidden="true"
+            />
+          </a>
+          <div
+            id="install"
+            class="command-field"
+            [attr.aria-label]="'hero.installLabel' | translate"
+          >
+            <span class="command-prompt" aria-hidden="true">$</span>
+            <code>npm i ng-bits</code>
+            <app-copy-button [value]="'npm i ng-bits'" label="hero.copyInstall" compact />
           </div>
-          <p class="mt-1 line-clamp-2 text-sm text-ink-200/70">{{ tile.entry.tagline }}</p>
         </div>
+
+        <p class="hero-detail mt-6">
+          <span class="status-dot" aria-hidden="true"></span>
+          {{ 'hero.detail' | translate: { count: tiles.length } }}
+        </p>
+      </div>
+
+      <a href="#backgrounds" class="hero-scroll-cue" [attr.aria-label]="'hero.explore' | translate">
+        <span>Scroll to explore</span>
+        <span class="hero-scroll-line" aria-hidden="true"></span>
       </a>
-    }
-  </div>
-</section>
+    </div>
+  </section>
+
+  <section
+    id="backgrounds"
+    class="catalogue-section scroll-mt-20"
+    aria-labelledby="catalogue-title"
+  >
+    <div class="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+      <div class="catalogue-heading">
+        <div>
+          <p class="eyebrow">{{ 'gallery.eyebrow' | translate }}</p>
+          <h2 id="catalogue-title" class="section-title mt-4">{{ 'gallery.title' | translate }}</h2>
+        </div>
+        <div class="catalogue-meta">
+          <span>{{ 'gallery.count' | translate: { count: tiles.length } }}</span>
+          <span class="catalogue-meta-rule" aria-hidden="true"></span>
+          <span>Angular 22</span>
+        </div>
+      </div>
+      <p class="section-description mt-5 max-w-xl">{{ 'gallery.description' | translate }}</p>
+
+      <div class="background-grid mt-12">
+        @for (tile of tiles; track tile.entry.slug; let index = $index) {
+          <a
+            [routerLink]="['/b', tile.entry.slug]"
+            appInView
+            #view="inView"
+            class="background-card group"
+            [attr.aria-label]="'gallery.open' | translate: { name: tile.entry.name }"
+          >
+            <div class="absolute inset-0" [class]="tile.entry.surface">
+              @if (view.visible()) {
+                <ng-container *ngComponentOutlet="tile.entry.component; inputs: tile.inputs" />
+              }
+            </div>
+            <div class="card-wash" aria-hidden="true"></div>
+            <div class="card-topline">
+              <span class="card-index">{{ (index + 1).toString().padStart(2, '0') }}</span>
+              <span class="engine-badge">{{ tile.entry.engine }}</span>
+            </div>
+            <div class="card-caption">
+              <div class="flex items-end justify-between gap-3">
+                <div>
+                  <h3>{{ tile.entry.name }}</h3>
+                  <p>{{ taglineKey(tile.entry) | translate }}</p>
+                </div>
+                <span class="card-arrow" aria-hidden="true">
+                  <ng-icon name="lucideArrowUpRight" size="18" />
+                </span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div
+      class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-8 sm:px-8 lg:px-12"
+    >
+      <span class="font-mono text-[11px] tracking-[0.18em] text-white/35 uppercase"
+        >ng-bits / open source</span
+      >
+      <a href="#top" class="text-xs text-white/45 transition-colors hover:text-white"
+        >Back to top ↑</a
+      >
+    </div>
+  </footer>
+</div>

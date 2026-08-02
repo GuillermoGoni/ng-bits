@@ -1,12 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideArrowLeft, lucideChevronDown, lucideSlidersHorizontal } from '@ng-icons/lucide';
 
 import { BACKGROUNDS, Control, findBackground } from '../registry';
+import { CopyButton } from '../shared/copy-button';
+import { LanguageSwitcher } from '../shared/language-switcher';
 
 @Component({
   selector: 'app-preview',
-  imports: [NgComponentOutlet, RouterLink],
+  imports: [CopyButton, LanguageSwitcher, NgComponentOutlet, NgIcon, RouterLink, TranslatePipe],
+  providers: [provideIcons({ lucideArrowLeft, lucideChevronDown, lucideSlidersHorizontal })],
   templateUrl: './preview.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -35,6 +41,11 @@ export class Preview {
 
   protected stringValue(key: string): string {
     return String(this.values()[key] ?? '');
+  }
+
+  protected taglineKey(): string {
+    const current = this.entry();
+    return current ? `backgrounds.${current.slug}.tagline` : '';
   }
 
   protected boolValue(key: string): boolean {
@@ -92,7 +103,9 @@ export class Preview {
         return `  [${key}]="${value}"`;
       });
 
-    return [`<ngb-${entry.slug}`, `  class="absolute inset-0 -z-10"`, ...attributes, `/>`].join('\n');
+    return [`<ngb-${entry.slug}`, `  class="absolute inset-0 -z-10"`, ...attributes, `/>`].join(
+      '\n',
+    );
   });
 
   protected copySnippet(): void {

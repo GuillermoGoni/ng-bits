@@ -1,184 +1,120 @@
 import { ChangeDetectionStrategy, Component, input, numberAttribute } from '@angular/core';
 
 import { NGB_BACKGROUND_STYLES } from '../../core/background-base';
+import { toRgb, toRgbList } from '../../core/color';
 import { NgbOglBackgroundBase, NgbUniforms } from '../../core/ogl-background-base';
-import { NGB_CHUNK_COLOR, NGB_CHUNK_NOISE2, NGB_CHUNK_UV } from '../../core/shader-chunks';
+import {
+  NGB_CHUNK_COLOR,
+  NGB_CHUNK_DITHER,
+  NGB_CHUNK_NOISE2,
+  NGB_CHUNK_UV,
+} from '../../core/shader-chunks';
 
-/** How the prism moves. */
-export type NgbPrismAnimation = 'rotate' | 'hover' | '3drotate';
+/** Motion treatment for the prismatic light. */
+export type NgbPrismAnimation = 'drift' | 'hover' | 'still' | 'rotate' | '3drotate';
 
 const FRAGMENT = /* glsl */ `
 precision highp float;
 
 uniform float uTime;
 uniform vec2 uResolution;
-uniform vec2 uRotation;
+uniform vec2 uPointer;
 uniform vec2 uOffset;
+uniform vec3 uBackground;
+uniform vec3 uColorA;
+uniform vec3 uColorB;
+uniform vec3 uColorC;
 uniform float uScale;
-uniform float uHeight;
-uniform float uBaseWidth;
+uniform float uIntensity;
 uniform float uGlow;
 uniform float uBloom;
 uniform float uHueShift;
-uniform float uColorFrequency;
+uniform float uDispersion;
 uniform float uNoise;
 
 varying vec2 vUv;
 
 ${NGB_CHUNK_UV}
-${NGB_CHUNK_NOISE2}
 ${NGB_CHUNK_COLOR}
+${NGB_CHUNK_DITHER}
+${NGB_CHUNK_NOISE2}
 
-mat3 rotY(float a) {
-  float s = sin(a), c = cos(a);
-  return mat3(c, 0.0, -s, 0.0, 1.0, 0.0, s, 0.0, c);
+float ellipse(vec2 p, vec2 centre, vec2 radius) {
+  vec2 d = (p - centre) / radius;
+  return exp(-dot(d, d) * 2.2);
 }
 
-mat3 rotX(float a) {
-  float s = sin(a), c = cos(a);
-  return mat3(1.0, 0.0, 0.0, 0.0, c, -s, 0.0, s, c);
-}
-
-// Square pyramid with a unit base, apex at height h. Exact distance.
-float sdPyramid(vec3 p, float h) {
-  float m2 = h * h + 0.25;
-
-  p.xz = abs(p.xz);
-  p.xz = (p.z > p.x) ? p.zx : p.xz;
-  p.xz -= 0.5;
-
-  vec3 q = vec3(p.z, h * p.y - 0.5 * p.x, h * p.x + 0.5 * p.y);
-
-  float s = max(-q.x, 0.0);
-  float t = clamp((q.y - 0.5 * p.z) / (m2 + 0.25), 0.0, 1.0);
-
-  float a = m2 * (q.x + s) * (q.x + s) + q.y * q.y;
-  float b = m2 * (q.x + 0.5 * t) * (q.x + 0.5 * t) + (q.y - m2 * t) * (q.y - m2 * t);
-
-  float d2 = min(q.y, -q.x * m2 - q.y * 0.5) > 0.0 ? 0.0 : min(a, b);
-
-  return sqrt((d2 + q.z * q.z) / m2) * sign(max(q.z, -p.y));
-}
-
-// The unit pyramid scaled to baseWidth and recentred on the origin.
-float map(vec3 p) {
-  float w = max(uBaseWidth, 0.001);
-  vec3 q = p;
-  q.y += uHeight * 0.5;
-  return sdPyramid(q / w, uHeight / w) * w;
-}
-
-vec3 calcNormal(vec3 p) {
-  vec2 e = vec2(0.002, 0.0);
-  return normalize(vec3(
-    map(p + e.xyy) - map(p - e.xyy),
-    map(p + e.yxy) - map(p - e.yxy),
-    map(p + e.yyx) - map(p - e.yyx)
-  ));
-}
-
-// Spectrum sampled along the internal path — the prism's split light.
-vec3 spectrum(float x) {
-  return 0.5 + 0.5 * cos(6.28318 * (x + vec3(0.0, 0.33, 0.67)));
+vec3 palette(float t) {
+  t = clamp(t, 0.0, 1.0);
+  return t < 0.5
+    ? mix(uColorA, uColorB, t * 2.0)
+    : mix(uColorB, uColorC, (t - 0.5) * 2.0);
 }
 
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
+  float time = uTime * 0.22;
 
-  vec2 uv = vUv - 0.5 - uOffset;
-  uv.x *= aspect;
-  // Tuned so the default 3.5 x 5.5 pyramid fills the frame at scale 3.6.
-  uv *= 15.0 / max(uScale, 0.001);
+  vec2 p = vUv - 0.5 - uOffset;
+  p.x *= aspect;
+  p /= max(uScale, 0.001);
 
-  // Orthographic. A pinhole camera close enough to frame a solid 5.5 units
-  // deep magnifies its near base edge until it swallows the lower half of the
-  // frame; the depth cues come from the refraction instead.
-  vec3 ro = vec3(uv, 6.0);
-  vec3 rd = vec3(0.0, 0.0, -1.0);
+  // Pointer motion only nudges the light; it never turns the composition into
+  // a literal 3D object. This keeps the hero copy above it legible.
+  vec2 cursor = (uPointer - 0.5) * vec2(0.18, 0.10);
+  vec2 drift = vec2(sin(time), cos(time * 0.83)) * 0.035;
 
-  // Tumble the solid, not the camera, so the framing stays put.
-  mat3 spin = rotY(uRotation.x) * rotX(uRotation.y);
-  mat3 inv = mat3(
-    spin[0][0], spin[1][0], spin[2][0],
-    spin[0][1], spin[1][1], spin[2][1],
-    spin[0][2], spin[1][2], spin[2][2]
+  float cyanWash = ellipse(p, vec2(-0.43, -0.02) + drift + cursor, vec2(0.78, 0.54));
+  float violetWash = ellipse(
+    p,
+    vec2(0.06 + sin(time * 0.71) * 0.05, 0.03) - cursor * 0.45,
+    vec2(0.72, 0.50)
   );
-  ro = inv * ro;
-  rd = inv * rd;
+  float coralWash = ellipse(
+    p,
+    vec2(0.50, -0.12 + cos(time * 0.66) * 0.035),
+    vec2(0.62, 0.48)
+  );
 
-  float dist = 0.0;
-  float hit = 0.0;
-  // Accumulated proximity to the surface: the edge bleed, for free.
-  float halo = 0.0;
+  // A soft, tilted caustic is the signature of the effect. The broad halo,
+  // tight white core and slight colour splitting are layered independently so
+  // the control inputs are meaningful rather than just a tint over a shape.
+  float horizon = -0.29 + p.x * 0.045 + sin(p.x * 3.2 + time * 1.7) * 0.012;
+  float distanceToHorizon = abs(p.y - horizon);
+  float halo = exp(-distanceToHorizon * 13.0);
+  float core = exp(-distanceToHorizon * 150.0);
+  float beam = exp(-abs(p.y - horizon - p.x * 0.09) * 30.0) * smoothstep(-0.72, 0.30, p.x);
+  float bands = 0.5 + 0.5 * sin(p.x * (5.0 + uDispersion * 12.0) - time * 1.8);
+  vec3 caustic = palette(bands);
 
-  for (int i = 0; i < 88; i++) {
-    vec3 pos = ro + rd * dist;
-    float d = map(pos);
-    // Falls off fast, so only rays that graze the silhouette pick up bleed —
-    // a slower falloff washes the whole frame at this framing.
-    halo += 0.012 / (0.05 + d * d * 90.0);
-    if (d < 0.0025) { hit = 1.0; break; }
-    dist += max(d * 0.9, 0.004);
-    if (dist > 14.0) break;
-  }
+  vec3 color = uBackground;
+  color += uColorA * cyanWash * (0.55 + uGlow * 0.24);
+  color += uColorB * violetWash * (0.50 + uGlow * 0.22);
+  color += uColorC * coralWash * (0.46 + uGlow * 0.18);
+  color += mix(palette(0.33), palette(0.67), p.x * 0.5 + 0.5) * halo * (0.42 + uBloom * 0.42);
+  color += caustic * beam * (0.28 + uBloom * 0.48);
+  color += vec3(1.0, 0.98, 0.94) * core * (0.42 + uGlow * 0.38);
 
-  vec3 color = vec3(0.0);
-  float alpha = 0.0;
+  // Preserve a dark edge around the colour field and tone-map the additive
+  // light, which avoids a flat clipped strip on bright palettes.
+  float vignette = 1.0 - smoothstep(0.32, 1.05, length(p * vec2(0.82, 1.08)));
+  color *= 0.42 + vignette * 0.58;
+  color = 1.0 - exp(-color * max(uIntensity, 0.0));
+  color = ngbHueShift(color, uHueShift);
+  color += ngbNoise(gl_FragCoord.xy * 1.3 + time * 60.0) * uNoise * 0.08;
+  color += ngbDither(gl_FragCoord.xy) / 255.0;
 
-  if (hit > 0.5) {
-    vec3 pos = ro + rd * dist;
-    vec3 n = calcNormal(pos);
-
-    float fresnel = pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
-
-    // Bend the ray on entry, then integrate the spectrum along the chord.
-    vec3 inner = refract(rd, n, 0.72);
-    if (dot(inner, inner) < 0.0001) inner = reflect(rd, n);
-
-    vec3 ip = pos + inner * 0.03;
-    float travel = 0.0;
-    vec3 glass = vec3(0.0);
-
-    for (int j = 0; j < 44; j++) {
-      if (map(ip) > 0.0) break;
-      float band = uColorFrequency * (ip.y * 0.5 + travel * 0.32 + ip.x * 0.18);
-      glass += spectrum(band) * 0.05;
-      ip += inner * 0.07;
-      travel += 0.07;
-    }
-
-    glass = ngbHueShift(glass, uHueShift);
-
-    float spec = pow(max(dot(reflect(rd, n), normalize(vec3(0.3, 0.9, 0.4))), 0.0), 40.0);
-
-    color = glass * (0.75 + 0.55 * fresnel) + fresnel * 0.30 + spec * 0.5;
-    alpha = clamp(0.30 + fresnel * 0.85 + max(max(glass.r, glass.g), glass.b) * 0.7, 0.0, 1.0);
-  }
-
-  // Edge glow and bloom, both driven by the same proximity integral.
-  float bleed = clamp(halo * 0.06, 0.0, 2.0);
-  vec3 glowColor = ngbHueShift(spectrum(halo * 0.12 + uHueShift * 0.15), uHueShift);
-  color += glowColor * bleed * uGlow * 0.55;
-  color += glowColor * bleed * bleed * uBloom * 0.10;
-  alpha = clamp(alpha + bleed * (uGlow * 0.35 + uBloom * 0.08), 0.0, 1.0);
-
-  if (uNoise > 0.0) {
-    color += ngbNoise(gl_FragCoord.xy * 1.7 + uTime * 40.0) * uNoise * 0.12;
-  }
-
-  gl_FragColor = vec4(color * alpha, alpha);
+  gl_FragColor = vec4(max(color, 0.0), 1.0);
 }
 `;
 
-const TAU = Math.PI * 2;
-
 /**
- * A translucent glass pyramid raymarched in place. The primary ray is
- * refracted on entry and integrated along the chord inside the solid, so the
- * body fills with split-spectrum bands instead of a flat surface tint.
+ * Diffuse coloured light converging into a bright prismatic caustic. It is an
+ * original, full-screen lighting study: no mesh, texture, or copied component
+ * code is involved.
  *
  * ```html
- * <ngb-prism class="absolute inset-0 -z-10" [scale]="3.6" [glow]="1" animation="rotate" />
+ * <ngb-prism class="absolute inset-0 -z-10" [colors]="['#52d9ff', '#8b7cff', '#ff9c69']" />
  * ```
  */
 @Component({
@@ -188,95 +124,88 @@ const TAU = Math.PI * 2;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NgbPrism extends NgbOglBackgroundBase {
-  /** `rotate` wobbles, `3drotate` tumbles, `hover` follows the pointer. */
-  readonly animation = input<NgbPrismAnimation>('rotate');
-  /** Apex height, in world units. */
-  readonly height = input(3.5, { transform: numberAttribute });
-  /** Base width across X and Z, in world units. */
-  readonly baseWidth = input(5.5, { transform: numberAttribute });
-  /** Screen-space size. Bigger fills more of the element. */
-  readonly scale = input(3.6, { transform: numberAttribute });
-  /** Global time multiplier. 0 freezes the animation. */
+  /** `drift` is a gentle autonomous movement; `hover` also follows the pointer. */
+  readonly animation = input<NgbPrismAnimation>('drift');
+  /** Three colours used for the diffuse field and its split-light caustic. */
+  readonly colors = input<readonly string[]>(['#52d9ff', '#8b7cff', '#ff9c69']);
+  /** Opaque base underneath the coloured light. */
+  readonly backgroundColor = input('#02030a');
+  /** Screen-space zoom. Values above 1 make the colour field larger. */
+  readonly scale = input(1, { transform: numberAttribute });
+  /** Overall exposure after the light layers have been composed. */
+  readonly intensity = input(1.35, { transform: numberAttribute });
+  /** Global time multiplier. `0` freezes autonomous motion. */
   readonly timeScale = input(0.5, { transform: numberAttribute });
-  /** Edge glow intensity. */
+  /** Strength of the broad, coloured light leaks. */
   readonly glow = input(1, { transform: numberAttribute });
-  /** Extra bloom layered on top of the glow. */
+  /** Strength of the horizon halo and split caustic. */
   readonly bloom = input(1, { transform: numberAttribute });
-  /** Hue rotation applied to the whole image, in radians. */
+  /** Hue rotation applied after the lighting is composed, in radians. */
   readonly hueShift = input(0, { transform: numberAttribute });
-  /** Frequency of the internal spectrum bands. */
-  readonly colorFrequency = input(1, { transform: numberAttribute });
-  /** Film grain added to the final colour. 0 disables it. */
-  readonly noise = input(0, { transform: numberAttribute });
+  /** Width and separation of the colour bands in the caustic. */
+  readonly dispersion = input(0.6, { transform: numberAttribute });
+  /** Film grain added after tone mapping. `0` disables it. */
+  readonly noise = input(0.025, { transform: numberAttribute });
   /** Horizontal offset, as a fraction of the element width. */
   readonly offsetX = input(0, { transform: numberAttribute });
   /** Vertical offset, as a fraction of the element height. Positive is down. */
   readonly offsetY = input(0, { transform: numberAttribute });
-  /** Pointer tilt sensitivity, used by the `hover` animation. */
+  /** Pointer tilt sensitivity when `animation="hover"`. */
   readonly hoverStrength = input(1, { transform: numberAttribute });
-  /** Hover easing, 0..1. Higher is snappier. */
-  readonly inertia = input(0.08, { transform: numberAttribute });
 
   protected override trackPointer = true;
+  protected override pointerSmoothing = 0.06;
   protected readonly fragment = FRAGMENT;
 
-  /** Integrated so switching animation mode eases instead of jumping. */
-  private yaw = 0;
-  private pitch = 0;
+  private phase = 0;
+
+  protected override rendererOptions() {
+    return { alpha: false, antialias: false, depth: false };
+  }
 
   protected buildUniforms(): NgbUniforms {
     return {
-      uRotation: { value: [0, 0] },
+      uPointer: { value: [0.5, 0.5] },
       uOffset: { value: [0, 0] },
-      uScale: { value: 3.6 },
-      uHeight: { value: 3.5 },
-      uBaseWidth: { value: 5.5 },
+      uBackground: { value: [0.01, 0.01, 0.04] },
+      uColorA: { value: [0.32, 0.85, 1] },
+      uColorB: { value: [0.55, 0.49, 1] },
+      uColorC: { value: [1, 0.61, 0.41] },
+      uScale: { value: 1 },
+      uIntensity: { value: 1.35 },
       uGlow: { value: 1 },
       uBloom: { value: 1 },
       uHueShift: { value: 0 },
-      uColorFrequency: { value: 1 },
-      uNoise: { value: 0 },
+      uDispersion: { value: 0.6 },
+      uNoise: { value: 0.025 },
     };
   }
 
   protected override syncUniforms(): void {
+    const [colorA, colorB, colorC] = toRgbList(this.colors(), 3, [1, 1, 1]);
+    this.setUniform('uBackground', toRgb(this.backgroundColor(), [0.01, 0.01, 0.04]));
+    this.setUniform('uColorA', colorA);
+    this.setUniform('uColorB', colorB);
+    this.setUniform('uColorC', colorC);
     this.setUniform('uScale', this.scale());
-    this.setUniform('uHeight', this.height());
-    this.setUniform('uBaseWidth', this.baseWidth());
+    this.setUniform('uIntensity', this.intensity());
     this.setUniform('uGlow', this.glow());
     this.setUniform('uBloom', this.bloom());
     this.setUniform('uHueShift', this.hueShift());
-    this.setUniform('uColorFrequency', this.colorFrequency());
+    this.setUniform('uDispersion', this.dispersion());
     this.setUniform('uNoise', this.noise());
     this.setUniform('uOffset', [this.offsetX(), -this.offsetY()]);
   }
 
   protected override update(_time: number, delta: number): void {
-    const dt = delta * this.timeScale();
+    const animation = this.animation();
+    if (animation !== 'still') this.phase += delta * this.timeScale();
+    this.setUniform('uTime', animation === 'still' ? 0 : this.phase);
 
-    switch (this.animation()) {
-      case '3drotate':
-        this.yaw = (this.yaw + dt * 0.7) % TAU;
-        this.pitch = (this.pitch + dt * 0.43) % TAU;
-        break;
-
-      case 'hover': {
-        // Ease towards the pointer so the tilt has weight.
-        const k = Math.min(1, Math.max(0, this.inertia()));
-        const strength = this.hoverStrength();
-        const targetYaw = (this.pointer.sx - 0.5) * 1.6 * strength;
-        const targetPitch = (this.pointer.sy - 0.5) * 1.0 * strength;
-        this.yaw += (targetYaw - this.yaw) * k;
-        this.pitch += (targetPitch - this.pitch) * k;
-        break;
-      }
-
-      default:
-        this.yaw = (this.yaw + dt * 0.55) % TAU;
-        this.pitch = Math.sin(this.time * this.timeScale() * 0.4) * 0.22;
-        break;
-    }
-
-    this.setUniform('uRotation', [this.yaw, this.pitch]);
+    const pointer = animation === 'hover' ? this.hoverStrength() : 0;
+    this.setUniform('uPointer', [
+      0.5 + (this.pointer.sx - 0.5) * pointer,
+      0.5 + (0.5 - this.pointer.sy) * pointer,
+    ]);
   }
 }

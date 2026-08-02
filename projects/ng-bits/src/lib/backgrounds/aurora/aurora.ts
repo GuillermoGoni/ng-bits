@@ -33,13 +33,20 @@ ${NGB_CHUNK_DITHER}
 void main() {
   vec2 uv = vUv;
   float t = uTime * uSpeed;
+  float phase = t * 1.15;
 
-  // The gradient runs left to right and never moves; only the shape does.
-  vec3 ramp = ngbRamp(uColor0, uColor1, uColor2, uColor2, 3, uv.x);
+  // Let the colour ramp breathe with the curtain, rather than leaving it as
+  // a static gradient beneath a barely moving edge.
+  float colourFlow = sin(uv.y * 7.0 - phase) * 0.045;
+  colourFlow += sin(uv.y * 15.0 + phase * 1.7) * 0.018;
+  vec3 ramp = ngbRamp(uColor0, uColor1, uColor2, uColor2, 3, clamp(uv.x + colourFlow, 0.0, 1.0));
 
-  // How far the curtain reaches down, varying slowly along x.
-  float wobble = ngbFbm(vec2(uv.x * 1.6 + t * 0.12, t * 0.22), 3);
-  float reach = 0.55 * uAmplitude * exp(wobble * 0.55);
+  // The long waves make the movement legible at a glance; the noise stops
+  // them from reading as a mechanical sine wave.
+  float wobble = ngbFbm(vec2(uv.x * 2.4 + phase * 0.42, phase * 0.62), 3);
+  float waves = sin(uv.x * 7.0 + phase) * 0.15;
+  waves += sin(uv.x * 15.0 - phase * 1.55) * 0.07;
+  float reach = 0.52 * uAmplitude * exp(wobble * 0.72) * (1.0 + waves);
 
   // Depth measured from the top edge, where the curtain is anchored.
   float depth = 1.0 - uv.y;
@@ -48,8 +55,11 @@ void main() {
   // Low blend keeps a defined edge; high blend smears it into a soft wash.
   float alpha = pow(falloff, mix(3.5, 0.7, clamp(uBlend, 0.0, 1.0)));
 
-  // Just enough vertical structure to avoid a flat gradient, no filaments.
-  alpha *= 0.88 + 0.12 * (ngbFbm(vec2(uv.x * 7.0, t * 0.3), 2) * 0.5 + 0.5);
+  // Moving ribbons make the flow visible across the whole curtain, not just
+  // at its lower silhouette.
+  float strands = 0.5 + 0.5 * sin(uv.x * 18.0 + depth * 9.0 - phase * 1.9);
+  float texture = ngbFbm(vec2(uv.x * 8.0 + phase * 0.8, depth * 3.0 - phase * 0.45), 2) * 0.5 + 0.5;
+  alpha *= 0.76 + 0.24 * mix(texture, strands, 0.6);
 
   alpha = clamp(alpha * uIntensity, 0.0, 1.0);
 

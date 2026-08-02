@@ -1,153 +1,173 @@
 @let current = entry();
 
 @if (!current) {
-  <div class="flex min-h-dvh flex-col items-center justify-center gap-4">
-    <p class="text-ink-400">No background with that name.</p>
-    <a routerLink="/" class="text-accent underline underline-offset-4">Back to the gallery</a>
+  <div class="empty-state">
+    <p>{{ 'preview.missing' | translate }}</p>
+    <a routerLink="/" class="button-primary">{{ 'preview.return' | translate }}</a>
   </div>
 } @else {
-  <div class="relative min-h-dvh">
-    <div class="fixed inset-0" [class]="current.surface">
+  <div class="preview-page">
+    <div class="preview-canvas" [class]="current.surface">
       <ng-container *ngComponentOutlet="current.component; inputs: values()" />
     </div>
+    <div class="preview-scrim" aria-hidden="true"></div>
 
-    <div class="pointer-events-none relative flex min-h-dvh flex-col">
-      <header class="pointer-events-auto flex items-center gap-4 p-5">
-        <a
-          routerLink="/"
-          class="panel px-3 py-1.5 text-sm text-ink-200 transition hover:text-white"
-          aria-label="Back to the gallery"
-        >
-          ← All backgrounds
+    <div class="preview-content">
+      <div class="preview-toolbar">
+        <a routerLink="/" fragment="backgrounds" class="back-link">
+          <ng-icon name="lucideArrowLeft" size="16" aria-hidden="true" />
+          <span>{{ 'preview.back' | translate }}</span>
         </a>
-        <div class="panel px-3 py-1.5">
-          <span class="text-sm font-medium text-white">{{ current.name }}</span>
-          <span class="ml-2 font-mono text-[10px] tracking-wide text-ink-400 uppercase">
-            {{ current.engine }}
-          </span>
+        <div class="preview-title-block">
+          <div class="flex items-center gap-2">
+            <h1>{{ current.name }}</h1>
+            <span class="engine-badge">{{ current.engine }}</span>
+          </div>
+          <p>{{ taglineKey() | translate }}</p>
         </div>
-      </header>
+        <div class="preview-toolbar-tools">
+          <span class="live-badge"
+            ><span class="status-dot" aria-hidden="true"></span
+            >{{ 'preview.live' | translate }}</span
+          >
+          <app-language-switcher />
+        </div>
+      </div>
 
-      <div class="flex flex-1 items-start justify-end gap-4 p-5 pt-0">
-        <aside class="pointer-events-auto w-full max-w-72">
-          <div class="panel overflow-hidden">
+      <div class="flex flex-1 items-start justify-end px-4 py-4 sm:px-6 lg:px-8">
+        <aside class="props-panel pointer-events-auto relative z-10 w-full sm:max-w-80">
+          <div class="flex items-center justify-between gap-4 px-4 py-3">
+            <div class="flex items-center gap-2">
+              <ng-icon name="lucideSlidersHorizontal" size="16" aria-hidden="true" />
+              <span class="text-sm font-medium text-white">{{
+                'preview.controls' | translate
+              }}</span>
+            </div>
             <button
               type="button"
-              class="flex w-full items-center justify-between px-4 py-3 text-left"
+              class="icon-button"
+              [attr.aria-label]="
+                (panelOpen() ? 'preview.hideControls' : 'preview.showControls') | translate
+              "
+              [attr.aria-expanded]="panelOpen()"
+              aria-controls="props-content"
               (click)="panelOpen.set(!panelOpen())"
             >
-              <span class="text-sm font-medium text-white">Props</span>
-              <span class="text-ink-400">{{ panelOpen() ? '−' : '+' }}</span>
+              <ng-icon
+                name="lucideChevronDown"
+                size="16"
+                [class.rotate-180]="panelOpen()"
+                aria-hidden="true"
+              />
             </button>
+          </div>
 
-            @if (panelOpen()) {
-              <div class="max-h-[62vh] space-y-4 overflow-y-auto border-t border-white/10 px-4 py-4">
-                @for (control of current.controls; track control.key) {
-                  @switch (control.kind) {
-                    @case ('number') {
-                      <div>
-                        <label class="field-label" [for]="control.key">
-                          {{ control.label }}
-                          <span class="font-mono normal-case">{{ numberValue(control.key) }}</span>
-                        </label>
-                        <input
-                          class="range mt-2"
-                          type="range"
-                          [id]="control.key"
-                          [min]="control.min"
-                          [max]="control.max"
-                          [step]="control.step"
-                          [value]="numberValue(control.key)"
-                          (input)="setNumber(control.key, $event)"
-                        />
+          @if (panelOpen()) {
+            <div id="props-content" class="props-content">
+              @for (control of current.controls; track control.key) {
+                @switch (control.kind) {
+                  @case ('number') {
+                    <div class="control-field">
+                      <label class="field-label" [for]="control.key">
+                        <span>{{ 'controls.' + control.label | translate }}</span>
+                        <span class="control-value">{{ numberValue(control.key) }}</span>
+                      </label>
+                      <input
+                        class="range mt-2"
+                        type="range"
+                        [id]="control.key"
+                        [min]="control.min"
+                        [max]="control.max"
+                        [step]="control.step"
+                        [value]="numberValue(control.key)"
+                        (input)="setNumber(control.key, $event)"
+                      />
+                    </div>
+                  }
+                  @case ('color') {
+                    <div class="control-field flex items-center justify-between gap-3">
+                      <label class="field-label flex-1" [for]="control.key">{{
+                        'controls.' + control.label | translate
+                      }}</label>
+                      <input
+                        class="swatch"
+                        type="color"
+                        [id]="control.key"
+                        [value]="stringValue(control.key)"
+                        (input)="setString(control.key, $event)"
+                      />
+                    </div>
+                  }
+                  @case ('colors') {
+                    <div class="control-field">
+                      <span class="field-label">{{ 'controls.' + control.label | translate }}</span>
+                      <div class="mt-2 flex gap-2">
+                        @for (index of colorSlots(control); track index) {
+                          <input
+                            class="swatch"
+                            type="color"
+                            [attr.aria-label]="'controls.' + control.label | translate"
+                            [value]="colorsValue(control.key)[index] ?? '#ffffff'"
+                            (input)="setColorAt(control.key, index, $event)"
+                          />
+                        }
                       </div>
-                    }
-                    @case ('color') {
-                      <div class="flex items-center justify-between gap-3">
-                        <label class="field-label flex-1" [for]="control.key">{{ control.label }}</label>
-                        <input
-                          class="swatch"
-                          type="color"
-                          [id]="control.key"
-                          [value]="stringValue(control.key)"
-                          (input)="setString(control.key, $event)"
-                        />
-                      </div>
-                    }
-                    @case ('colors') {
-                      <div>
-                        <span class="field-label">{{ control.label }}</span>
-                        <div class="mt-2 flex gap-2">
-                          @for (index of colorSlots(control); track index) {
-                            <input
-                              class="swatch"
-                              type="color"
-                              [attr.aria-label]="control.label + ' ' + (index + 1)"
-                              [value]="colorsValue(control.key)[index] ?? '#ffffff'"
-                              (input)="setColorAt(control.key, index, $event)"
-                            />
-                          }
-                        </div>
-                      </div>
-                    }
-                    @case ('boolean') {
-                      <div class="flex items-center justify-between gap-3">
-                        <label class="field-label flex-1" [for]="control.key">{{ control.label }}</label>
-                        <input
-                          class="h-4 w-4 accent-[var(--color-accent)]"
-                          type="checkbox"
-                          [id]="control.key"
-                          [checked]="boolValue(control.key)"
-                          (change)="setBool(control.key, $event)"
-                        />
-                      </div>
-                    }
-                    @case ('select') {
-                      <div>
-                        <label class="field-label" [for]="control.key">{{ control.label }}</label>
-                        <select
-                          class="mt-2 w-full rounded-md border border-white/10 bg-ink-800 px-2 py-1.5 text-sm text-ink-200"
-                          [id]="control.key"
-                          [value]="stringValue(control.key)"
-                          (change)="setString(control.key, $event)"
-                        >
-                          @for (option of control.options; track option) {
-                            <option [value]="option" [selected]="option === stringValue(control.key)">
-                              {{ option }}
-                            </option>
-                          }
-                        </select>
-                      </div>
-                    }
+                    </div>
+                  }
+                  @case ('boolean') {
+                    <label
+                      class="control-field flex cursor-pointer items-center justify-between gap-3"
+                      [for]="control.key"
+                    >
+                      <span class="field-label">{{ 'controls.' + control.label | translate }}</span>
+                      <input
+                        class="toggle"
+                        type="checkbox"
+                        [id]="control.key"
+                        [checked]="boolValue(control.key)"
+                        (change)="setBool(control.key, $event)"
+                      />
+                    </label>
+                  }
+                  @case ('select') {
+                    <div class="control-field">
+                      <label class="field-label" [for]="control.key">{{
+                        'controls.' + control.label | translate
+                      }}</label>
+                      <select
+                        class="select-control mt-2 w-full"
+                        [id]="control.key"
+                        [value]="stringValue(control.key)"
+                        (change)="setString(control.key, $event)"
+                      >
+                        @for (option of control.options; track option) {
+                          <option [value]="option" [selected]="option === stringValue(control.key)">
+                            {{ 'options.' + option | translate }}
+                          </option>
+                        }
+                      </select>
+                    </div>
                   }
                 }
-
-                <button
-                  type="button"
-                  class="w-full rounded-md border border-white/10 py-1.5 text-xs text-ink-400 transition hover:text-white"
-                  (click)="reset()"
-                >
-                  Reset to defaults
-                </button>
-              </div>
-            }
-          </div>
+              }
+              <button type="button" class="reset-button" (click)="reset()">
+                {{ 'preview.reset' | translate }}
+              </button>
+            </div>
+          }
         </aside>
       </div>
 
-      <footer class="pointer-events-auto p-5">
-        <div class="panel max-w-2xl overflow-hidden">
-          <div class="flex items-center justify-between border-b border-white/10 px-4 py-2">
-            <span class="font-mono text-[11px] tracking-wide text-ink-400 uppercase">Usage</span>
-            <button
-              type="button"
-              class="text-xs text-ink-400 transition hover:text-white"
-              (click)="copySnippet()"
-            >
-              Copy
-            </button>
+      <footer class="preview-footer">
+        <div class="usage-panel">
+          <div class="usage-heading">
+            <div class="flex items-center gap-2">
+              <span class="usage-dot" aria-hidden="true"></span>
+              <span>{{ 'preview.usage' | translate }}</span>
+            </div>
+            <app-copy-button [value]="snippet()" label="preview.copyUsage" />
           </div>
-          <pre class="overflow-x-auto px-4 py-3 font-mono text-xs leading-relaxed text-ink-200"><code>{{ snippet() }}</code></pre>
+          <pre><code>{{ snippet() }}</code></pre>
         </div>
       </footer>
     </div>

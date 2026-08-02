@@ -3,6 +3,8 @@
 Animated WebGL and canvas backgrounds for Angular 22, inspired by [ReactBits](https://reactbits.dev).
 Standalone components, signal inputs, SSR-safe.
 
+[English](#ng-bits) · [Español](#español)
+
 ```bash
 npm i ng-bits ogl three
 ```
@@ -44,7 +46,8 @@ export class Hero {}
 | `NgbGrainient`    | `ngb-grainient`     | OGL       | Mesh gradient + film grain, opaque                 |
 | `NgbLightRays`    | `ngb-light-rays`    | OGL       | God rays from a configurable origin                |
 | `NgbLightPillar`  | `ngb-light-pillar`  | OGL       | Vertical volumetric shafts                         |
-| `NgbPrism`        | `ngb-prism`         | OGL       | Raymarched glass pyramid with internal spectrum    |
+| `NgbPrism`        | `ngb-prism`         | OGL       | Diffuse spectrum light with a prismatic caustic    |
+| `NgbOrbitalAtlas` | `ngb-orbital-atlas` | OGL       | Interrupted orbital arcs with moving satellites    |
 | `NgbFerrofluid`   | `ngb-ferrofluid`    | OGL       | Glowing iso-contours over two fused fluid layers   |
 | `NgbPixel`        | `ngb-pixel`         | OGL       | Bayer-dithered pixel field, crisp on/off cells     |
 | `NgbPixelBlast`   | `ngb-pixel-blast`   | OGL       | Softer sibling: glyphs scale instead of toggling   |
@@ -84,7 +87,10 @@ If you need frames back:
 
 1. Lower `maxDpr` (`1.5` or even `1` is usually invisible on a background).
 2. For `NgbLiquidEther`, drop `simResolution` first — the simulation cost is independent of canvas size.
-3. `NgbFerrofluid` and `NgbPrism` raymarch; they are the two to watch on low-end GPUs.
+3. `NgbFerrofluid` raymarches and is the most demanding background on low-end GPUs.
+
+`NgbOrbitalAtlas` is a lighter geometric option for hero sections: a single
+fragment pass with no textures, framebuffers, or raymarching.
 
 ## Building your own
 
@@ -118,8 +124,9 @@ export class NgbMyThing extends NgbOglBackgroundBase {
 
 ## Inspiration and licensing
 
-The catalogue takes its cue from [ReactBits](https://reactbits.dev) — same effects, same prop
-vocabulary where it made sense, so moving between the two is easy.
+The catalogue takes visual cues from [ReactBits](https://reactbits.dev), but
+each Angular component has an independently designed renderer and an API that
+fits the effect instead of mirroring another project's implementation.
 
 These are **independent implementations, not ports.** ReactBits is published under MIT *plus a
 Commons Clause* that forbids redistributing its components "whether alone, in a bundle, or as a
@@ -128,6 +135,76 @@ ideas and the underlying techniques — raymarched SDFs, Bayer dithering, Jacobi
 thin-film interference loops — which are long-standing public graphics practice, most of it
 traceable to Shadertoy and Inigo Quilez's distance-function articles.
 
-## Licence
+## License / Licencia
 
 MIT
+
+## Español
+
+`ng-bits` es una librería de fondos animados para Angular 22. Incluye componentes standalone para
+WebGL/OGL, Three.js y Canvas 2D, con inputs basados en signals y soporte seguro para SSR.
+
+### Instalación
+
+```bash
+npm i ng-bits ogl three
+```
+
+`ogl` y `three` son peer dependencies opcionales. Instala `ogl` para los fondos OGL y `three` para
+`NgbLiquidEther`; no necesitas ambos si no utilizas sus respectivos componentes.
+
+### Uso
+
+Cada fondo ocupa todo su elemento host. El host debe tener tamaño y el contenido debe quedar por
+encima mediante el contexto de capas del layout:
+
+```html
+<section class="relative isolate min-h-96 overflow-hidden">
+  <ngb-aurora
+    class="absolute inset-0 -z-10"
+    [colorStops]="['#66a1ff', '#B497CF', '#5227FF']"
+    [amplitude]="1.2"
+    [blend]="0.5"
+    [speed]="1.5"
+  />
+
+  <h1 class="relative z-10">Contenido sobre el fondo</h1>
+</section>
+```
+
+```ts
+import { NgbAurora } from 'ng-bits';
+
+@Component({
+  imports: [NgbAurora],
+  // ...
+})
+export class Hero {}
+```
+
+### Estructura
+
+- `src/public-api.ts`: exports públicos de la librería.
+- `src/lib/core/`: ciclo de vida, resize, visibilidad, renderers OGL y chunks GLSL compartidos.
+- `src/lib/backgrounds/`: un componente standalone por fondo.
+- `README.md`: API, inputs compartidos, rendimiento y ejemplos.
+
+### Inputs compartidos
+
+Todos los fondos heredan estos inputs de `NgbBackgroundBase`:
+
+| Input | Valor por defecto | Descripción |
+| --- | --- | --- |
+| `paused` | `false` | Congela el loop sin liberar recursos GPU. |
+| `maxDpr` | `2` | Limita el `devicePixelRatio` para mejorar el rendimiento. |
+| `pauseWhenHidden` | `true` | Detiene el renderizado fuera del viewport. |
+| `reducedMotion` | `'respect'` | Renderiza un frame estático cuando el sistema pide reducir movimiento. |
+
+### Tecnologías y licencia
+
+La librería usa Angular 22 y TypeScript 6. OGL proporciona los shaders WebGL, Three.js la simulación
+de fluidos de `NgbLiquidEther` y Canvas 2D los fondos ligeros. La demo usa Tailwind CSS 4, Angular
+SSR y Express.
+
+El proyecto se distribuye bajo la [Licencia MIT](../../LICENSE). Las implementaciones son propias;
+ReactBits es solo una referencia visual y no se reutiliza su código fuente.
