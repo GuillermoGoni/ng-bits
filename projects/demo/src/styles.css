@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-ink-950: oklch(0.145 0.01 275);
+  --color-ink-900: oklch(0.19 0.012 275);
+  --color-ink-800: oklch(0.25 0.014 275);
+  --color-ink-700: oklch(0.34 0.016 275);
+  --color-ink-400: oklch(0.62 0.02 275);
+  --color-ink-200: oklch(0.85 0.012 275);
+  --color-accent: oklch(0.68 0.19 295);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-ink-950 text-ink-200 antialiased;
+  }
+
+  ::selection {
+    @apply bg-accent/40;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-xl border border-white/10 bg-ink-900/70 backdrop-blur-xl;
+  }
+
+  .field-label {
+    @apply flex items-center justify-between text-[11px] font-medium tracking-wide text-ink-400 uppercase;
+  }
+
+  .range {
+    @apply h-1 w-full cursor-pointer appearance-none rounded-full bg-white/15;
+  }
+
+  .range::-webkit-slider-thumb {
+    @apply h-3 w-3 appearance-none rounded-full bg-accent;
+  }
+
+  .swatch {
+    @apply h-7 w-7 cursor-pointer rounded-md border border-white/15 bg-transparent p-0;
+  }
+
+  .swatch::-webkit-color-swatch-wrapper {
+    @apply p-0.5;
+  }
+
+  .swatch::-webkit-color-swatch {
+    @apply rounded border-none;
+  }
+}

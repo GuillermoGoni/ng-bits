@@ -1,0 +1,155 @@
+@let current = entry();
+
+@if (!current) {
+  <div class="flex min-h-dvh flex-col items-center justify-center gap-4">
+    <p class="text-ink-400">No background with that name.</p>
+    <a routerLink="/" class="text-accent underline underline-offset-4">Back to the gallery</a>
+  </div>
+} @else {
+  <div class="relative min-h-dvh">
+    <div class="fixed inset-0" [class]="current.surface">
+      <ng-container *ngComponentOutlet="current.component; inputs: values()" />
+    </div>
+
+    <div class="pointer-events-none relative flex min-h-dvh flex-col">
+      <header class="pointer-events-auto flex items-center gap-4 p-5">
+        <a
+          routerLink="/"
+          class="panel px-3 py-1.5 text-sm text-ink-200 transition hover:text-white"
+          aria-label="Back to the gallery"
+        >
+          ← All backgrounds
+        </a>
+        <div class="panel px-3 py-1.5">
+          <span class="text-sm font-medium text-white">{{ current.name }}</span>
+          <span class="ml-2 font-mono text-[10px] tracking-wide text-ink-400 uppercase">
+            {{ current.engine }}
+          </span>
+        </div>
+      </header>
+
+      <div class="flex flex-1 items-start justify-end gap-4 p-5 pt-0">
+        <aside class="pointer-events-auto w-full max-w-72">
+          <div class="panel overflow-hidden">
+            <button
+              type="button"
+              class="flex w-full items-center justify-between px-4 py-3 text-left"
+              (click)="panelOpen.set(!panelOpen())"
+            >
+              <span class="text-sm font-medium text-white">Props</span>
+              <span class="text-ink-400">{{ panelOpen() ? '−' : '+' }}</span>
+            </button>
+
+            @if (panelOpen()) {
+              <div class="max-h-[62vh] space-y-4 overflow-y-auto border-t border-white/10 px-4 py-4">
+                @for (control of current.controls; track control.key) {
+                  @switch (control.kind) {
+                    @case ('number') {
+                      <div>
+                        <label class="field-label" [for]="control.key">
+                          {{ control.label }}
+                          <span class="font-mono normal-case">{{ numberValue(control.key) }}</span>
+                        </label>
+                        <input
+                          class="range mt-2"
+                          type="range"
+                          [id]="control.key"
+                          [min]="control.min"
+                          [max]="control.max"
+                          [step]="control.step"
+                          [value]="numberValue(control.key)"
+                          (input)="setNumber(control.key, $event)"
+                        />
+                      </div>
+                    }
+                    @case ('color') {
+                      <div class="flex items-center justify-between gap-3">
+                        <label class="field-label flex-1" [for]="control.key">{{ control.label }}</label>
+                        <input
+                          class="swatch"
+                          type="color"
+                          [id]="control.key"
+                          [value]="stringValue(control.key)"
+                          (input)="setString(control.key, $event)"
+                        />
+                      </div>
+                    }
+                    @case ('colors') {
+                      <div>
+                        <span class="field-label">{{ control.label }}</span>
+                        <div class="mt-2 flex gap-2">
+                          @for (index of colorSlots(control); track index) {
+                            <input
+                              class="swatch"
+                              type="color"
+                              [attr.aria-label]="control.label + ' ' + (index + 1)"
+                              [value]="colorsValue(control.key)[index] ?? '#ffffff'"
+                              (input)="setColorAt(control.key, index, $event)"
+                            />
+                          }
+                        </div>
+                      </div>
+                    }
+                    @case ('boolean') {
+                      <div class="flex items-center justify-between gap-3">
+                        <label class="field-label flex-1" [for]="control.key">{{ control.label }}</label>
+                        <input
+                          class="h-4 w-4 accent-[var(--color-accent)]"
+                          type="checkbox"
+                          [id]="control.key"
+                          [checked]="boolValue(control.key)"
+                          (change)="setBool(control.key, $event)"
+                        />
+                      </div>
+                    }
+                    @case ('select') {
+                      <div>
+                        <label class="field-label" [for]="control.key">{{ control.label }}</label>
+                        <select
+                          class="mt-2 w-full rounded-md border border-white/10 bg-ink-800 px-2 py-1.5 text-sm text-ink-200"
+                          [id]="control.key"
+                          [value]="stringValue(control.key)"
+                          (change)="setString(control.key, $event)"
+                        >
+                          @for (option of control.options; track option) {
+                            <option [value]="option" [selected]="option === stringValue(control.key)">
+                              {{ option }}
+                            </option>
+                          }
+                        </select>
+                      </div>
+                    }
+                  }
+                }
+
+                <button
+                  type="button"
+                  class="w-full rounded-md border border-white/10 py-1.5 text-xs text-ink-400 transition hover:text-white"
+                  (click)="reset()"
+                >
+                  Reset to defaults
+                </button>
+              </div>
+            }
+          </div>
+        </aside>
+      </div>
+
+      <footer class="pointer-events-auto p-5">
+        <div class="panel max-w-2xl overflow-hidden">
+          <div class="flex items-center justify-between border-b border-white/10 px-4 py-2">
+            <span class="font-mono text-[11px] tracking-wide text-ink-400 uppercase">Usage</span>
+            <button
+              type="button"
+              class="text-xs text-ink-400 transition hover:text-white"
+              (click)="copySnippet()"
+            >
+              Copy
+            </button>
+          </div>
+          <pre class="overflow-x-auto px-4 py-3 font-mono text-xs leading-relaxed text-ink-200"><code>{{ snippet() }}</code></pre>
+        </div>
+      </footer>
+    </div>
+  </div>
+}

@@ -1,0 +1,58 @@
+<section class="relative isolate overflow-hidden border-b border-white/10">
+  <div class="absolute inset-0 -z-10 bg-black">
+    <ngb-aurora [colorStops]="['#5227ff', '#7cff67', '#5227ff']" [amplitude]="1.2" [blend]="0.6" />
+  </div>
+
+  <div class="mx-auto flex min-h-[62vh] max-w-6xl flex-col justify-center px-6 py-24">
+    <p class="mb-4 font-mono text-xs tracking-[0.2em] text-accent uppercase">Angular 22 · Tailwind v4</p>
+    <h1 class="max-w-2xl text-5xl font-semibold tracking-tight text-white sm:text-6xl">
+      Animated backgrounds for&nbsp;Angular.
+    </h1>
+    <p class="mt-5 max-w-xl text-lg text-ink-200/80">
+      {{ tiles.length }} WebGL and canvas backgrounds as standalone components. Signal inputs,
+      SSR-safe, they pause when off-screen and honour <code class="text-ink-200">prefers-reduced-motion</code>.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a
+        href="#gallery"
+        class="rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-ink-950 transition hover:bg-white/90"
+      >
+        Browse backgrounds
+      </a>
+      <code class="rounded-lg border border-white/15 bg-black/40 px-5 py-2.5 font-mono text-sm text-ink-200">
+        npm i ng-bits
+      </code>
+    </div>
+  </div>
+</section>
+
+<section id="gallery" class="mx-auto max-w-6xl px-6 py-16">
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    @for (tile of tiles; track tile.entry.slug) {
+      <a
+        [routerLink]="['/b', tile.entry.slug]"
+        appInView
+        #view="inView"
+        class="group relative block aspect-[16/11] overflow-hidden rounded-xl border border-white/10 transition hover:border-white/25"
+      >
+        <div class="absolute inset-0" [class]="tile.entry.surface">
+          @if (view.visible()) {
+            <ng-container *ngComponentOutlet="tile.entry.component; inputs: tile.inputs" />
+          }
+        </div>
+
+        <div
+          class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pt-12"
+        >
+          <div class="flex items-baseline justify-between gap-3">
+            <h3 class="font-medium text-white">{{ tile.entry.name }}</h3>
+            <span class="font-mono text-[10px] tracking-wide text-ink-400 uppercase">
+              {{ tile.entry.engine }}
+            </span>
+          </div>
+          <p class="mt-1 line-clamp-2 text-sm text-ink-200/70">{{ tile.entry.tagline }}</p>
+        </div>
+      </a>
+    }
+  </div>
+</section>

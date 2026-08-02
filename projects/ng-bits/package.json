@@ -1,0 +1,35 @@
+{
+  "name": "ng-bits",
+  "version": "0.1.0",
+  "description": "Animated WebGL and canvas backgrounds for Angular. Standalone, signal-driven, SSR-safe.",
+  "keywords": [
+    "angular",
+    "background",
+    "webgl",
+    "shader",
+    "ogl",
+    "three",
+    "animation",
+    "aurora",
+    "canvas"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "ogl": "^1.0.0",
+    "three": ">=0.170.0"
+  },
+  "peerDependenciesMeta": {
+    "ogl": {
+      "optional": true
+    },
+    "three": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

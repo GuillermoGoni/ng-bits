@@ -1,0 +1,48 @@
+{
+  "name": "ng-bits-workspace",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve demo",
+    "build": "ng build ng-bits",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "serve:ssr:demo": "node dist/demo/server/server.mjs",
+    "build:lib": "ng build ng-bits",
+    "build:demo": "ng build demo",
+    "serve:ssr": "node dist/demo/server/server.mjs"
+  },
+  "private": true,
+  "packageManager": "npm@12.0.1",
+  "dependencies": {
+    "@angular/common": "^22.0.0",
+    "@angular/compiler": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/platform-server": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "@angular/ssr": "^22.1.2",
+    "express": "^5.1.0",
+    "ogl": "^1.0.11",
+    "rxjs": "~7.8.0",
+    "three": "^0.185.1",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.1.2",
+    "@angular/cli": "^22.0.5",
+    "@angular/compiler-cli": "^22.0.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/express": "^5.0.1",
+    "@types/node": "^20.17.19",
+    "@types/three": "^0.185.3",
+    "jsdom": "^28.0.0",
+    "ng-packagr": "^22.1.0",
+    "postcss": "^8.5.25",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "vitest": "^4.0.8"
+  }
+}
