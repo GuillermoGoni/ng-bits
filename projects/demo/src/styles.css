@@ -252,7 +252,7 @@
   }
 
   .preview-content {
-    @apply relative z-[2] flex min-h-svh flex-col;
+    @apply pointer-events-none relative z-[2] flex min-h-svh flex-col;
   }
 
   .preview-toolbar {
