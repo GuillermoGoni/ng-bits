@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://guillermogoni.github.io/ng-bits/sitemap.xml
