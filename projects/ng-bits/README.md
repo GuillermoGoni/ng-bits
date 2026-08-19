@@ -6,7 +6,7 @@ Standalone components, signal inputs, SSR-safe.
 [English](#ng-bits) · [Español](#español)
 
 ```bash
-npm i ng-bits ogl three
+npm i @guillermogoni/ng-bits ogl three
 ```
 
 `ogl` and `three` are optional peer dependencies — install only what the backgrounds you use need
@@ -25,7 +25,7 @@ Every background fills its parent, so position it and put your content above it:
 ```
 
 ```ts
-import { NgbAurora } from 'ng-bits';
+import { NgbAurora } from '@guillermogoni/ng-bits';
 
 @Component({
   imports: [NgbAurora],
@@ -147,7 +147,7 @@ WebGL/OGL, Three.js y Canvas 2D, con inputs basados en signals y soporte seguro 
 ### Instalación
 
 ```bash
-npm i ng-bits ogl three
+npm i @guillermogoni/ng-bits ogl three
 ```
 
 `ogl` y `three` son peer dependencies opcionales. Instala `ogl` para los fondos OGL y `three` para
@@ -173,7 +173,7 @@ encima mediante el contexto de capas del layout:
 ```
 
 ```ts
-import { NgbAurora } from 'ng-bits';
+import { NgbAurora } from '@guillermogoni/ng-bits';
 
 @Component({
   imports: [NgbAurora],

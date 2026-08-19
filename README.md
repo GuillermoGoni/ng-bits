@@ -33,7 +33,7 @@ copyable Angular snippets, responsive layouts, and English/Spanish interface tra
 To use the library in an Angular application:
 
 ```bash
-npm install ng-bits ogl three
+npm install @guillermogoni/ng-bits ogl three
 ```
 
 Install `ogl` for OGL backgrounds and `three` for `NgbLiquidEther`. Both are optional peer
@@ -41,7 +41,7 @@ dependencies; only install the engine required by the components you use.
 
 ```ts
 import { Component } from '@angular/core';
-import { NgbAurora } from 'ng-bits';
+import { NgbAurora } from '@guillermogoni/ng-bits';
 
 @Component({
   standalone: true,
@@ -79,7 +79,7 @@ projects/
 │  ├─ src/lib/backgrounds/           One standalone component per background
 │  ├─ package.json
 │  └─ README.md                      Package-level API documentation
-└─ demo/                             SSR-enabled showcase application
+└─ demo/                             CSR-by-default showcase with optional SSR
    └─ src/app/
       ├─ registry.ts                 Component catalogue, defaults and control schemas
       ├─ pages/gallery.*              Home/gallery page
@@ -126,14 +126,17 @@ All backgrounds inherit these lifecycle inputs from `NgbBackgroundBase`:
 | 3D | Three.js 0.185.x | GPU fluid simulation for `NgbLiquidEther`. |
 | 2D | Canvas 2D API | Lightweight dot, grid and glyph backgrounds. |
 | Demo styling | Tailwind CSS 4 | Layout, tokens and responsive UI styling. |
-| Demo runtime | Angular SSR + Express | Server rendering and hydration for the showcase. |
+| Demo runtime | Angular CSR; optional SSR + Express | Client-only development by default, with server rendering available explicitly. |
 
 ### Development commands
 
 ```bash
-npm start              # Run the SSR showcase at http://localhost:4200
+npm start              # Run the client-only showcase at http://localhost:4200
+npm run start:ssr      # Run the showcase with SSR
 npm run build:lib      # Build the publishable ng-bits library
-npm run build:demo     # Build the SSR showcase
+npm run build:demo     # Build the client-only showcase
+npm run build:demo:ssr # Build the SSR showcase
+npm run serve:ssr      # Serve the previously built SSR output on port 4000
 npm test               # Run the workspace test targets
 ```
 
@@ -183,7 +186,7 @@ en vivo, snippets copiables, diseño responsive y traducciones en inglés y espa
 Para usar la librería en una aplicación Angular:
 
 ```bash
-npm install ng-bits ogl three
+npm install @guillermogoni/ng-bits ogl three
 ```
 
 Instala `ogl` para los fondos OGL y `three` para `NgbLiquidEther`. Ambos son peer dependencies
@@ -191,7 +194,7 @@ opcionales: instala solamente el motor que necesiten los componentes elegidos.
 
 ```ts
 import { Component } from '@angular/core';
-import { NgbAurora } from 'ng-bits';
+import { NgbAurora } from '@guillermogoni/ng-bits';
 
 @Component({
   standalone: true,
@@ -234,14 +237,17 @@ La lista completa y los inputs de cada componente están en [`projects/ng-bits/R
 - Three.js 0.185.x para la simulación de fluidos de `NgbLiquidEther`.
 - Canvas 2D para fondos ligeros de puntos, grillas y glifos.
 - Tailwind CSS 4 para la interfaz de la demo.
-- Angular SSR + Express para renderizado e hidratación.
+- Angular CSR por defecto; SSR + Express opcional para renderizado en servidor e hidratación.
 
 ### Comandos de desarrollo
 
 ```bash
-npm start              # Ejecuta la demo SSR en http://localhost:4200
+npm start              # Ejecuta la demo solo cliente en http://localhost:4200
+npm run start:ssr      # Ejecuta la demo con SSR
 npm run build:lib      # Compila la librería publicable
-npm run build:demo     # Compila la demo SSR
+npm run build:demo     # Compila la demo solo cliente
+npm run build:demo:ssr # Compila la demo SSR
+npm run serve:ssr      # Sirve el build SSR previo en el puerto 4000
 npm test               # Ejecuta los tests del workspace
 ```
 

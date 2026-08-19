@@ -4,13 +4,15 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve demo",
+    "start:ssr": "ng serve demo --configuration ssr",
     "build": "ng build ng-bits",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:demo": "node dist/demo/server/server.mjs",
+    "serve:ssr:demo": "node dist/demo-ssr/server/server.mjs",
     "build:lib": "ng build ng-bits",
     "build:demo": "ng build demo",
-    "serve:ssr": "node dist/demo/server/server.mjs"
+    "build:demo:ssr": "ng build demo --configuration production,ssr",
+    "serve:ssr": "node dist/demo-ssr/server/server.mjs"
   },
   "private": true,
   "packageManager": "npm@12.0.1",

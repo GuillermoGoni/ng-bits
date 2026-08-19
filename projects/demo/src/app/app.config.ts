@@ -6,7 +6,6 @@ import {
 } from '@angular/core';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
-import { provideClientHydration } from '@angular/platform-browser';
 
 import { routes } from './app.routes';
 import { DEMO_TRANSLATIONS } from './i18n/translations';
@@ -26,6 +25,5 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding(),
       withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
     ),
-    provideClientHydration(),
   ],
 };
