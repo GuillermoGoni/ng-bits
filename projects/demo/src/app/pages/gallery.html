@@ -39,14 +39,38 @@
               aria-hidden="true"
             />
           </a>
+          <a
+            href="https://github.com/GuillermoGoni/ng-bits"
+            class="button-secondary"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="ng-bits repository on GitHub (opens in a new tab)"
+          >
+            <ng-icon name="githubMark" size="17" aria-hidden="true" />
+            <span>GitHub</span>
+          </a>
+          <a
+            href="https://www.npmjs.com/package/@guillermogoni/ng-bits"
+            class="button-secondary"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="ng-bits package on npm (opens in a new tab)"
+          >
+            <ng-icon name="lucidePackage" size="17" strokeWidth="1.75" aria-hidden="true" />
+            <span>npm</span>
+          </a>
           <div
             id="install"
             class="command-field"
             [attr.aria-label]="'hero.installLabel' | translate"
           >
             <span class="command-prompt" aria-hidden="true">$</span>
-            <code>npm i ng-bits</code>
-            <app-copy-button [value]="'npm i ng-bits'" label="hero.copyInstall" compact />
+            <code>npm i @guillermogoni/ng-bits</code>
+            <app-copy-button
+              [value]="'npm i @guillermogoni/ng-bits'"
+              label="hero.copyInstall"
+              compact
+            />
           </div>
         </div>
 
@@ -119,15 +143,27 @@
   </section>
 
   <footer class="site-footer">
-    <div
-      class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-8 sm:px-8 lg:px-12"
-    >
-      <span class="font-mono text-[11px] tracking-[0.18em] text-white/35 uppercase"
-        >ng-bits / open source</span
-      >
-      <a href="#top" class="text-xs text-white/45 transition-colors hover:text-white"
-        >Back to top ↑</a
-      >
+    <div class="site-footer-inner">
+      <div class="site-footer-meta">
+        <span class="site-footer-kicker">ng-bits / open source</span>
+        <span class="site-footer-rule" aria-hidden="true"></span>
+        <a
+          href="https://guillermogoni.dev"
+          class="site-footer-author group"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Guillermo Goñi — guillermogoni.dev (opens in a new tab)"
+        >
+          <span>Guillermo Goñi</span>
+          <ng-icon
+            name="lucideArrowUpRight"
+            size="13"
+            class="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            aria-hidden="true"
+          />
+        </a>
+      </div>
+      <a href="#top" class="site-footer-back">Back to top ↑</a>
     </div>
   </footer>
 </div>

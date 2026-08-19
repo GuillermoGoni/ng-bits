@@ -122,6 +122,14 @@
     @apply inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-white px-5 text-sm font-semibold text-ink-950 shadow-[0_10px_35px_rgba(0,0,0,0.22)] transition-[background-color,transform,box-shadow] duration-200 hover:bg-white/90 hover:shadow-[0_14px_40px_rgba(0,0,0,0.3)] active:scale-[0.96];
   }
 
+  .button-secondary {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/[0.05] px-4 text-sm font-medium text-white/70 transition-[color,background-color,border-color,transform] duration-200 hover:border-white/25 hover:bg-white/10 hover:text-white active:scale-[0.96];
+  }
+
+  .button-secondary ng-icon {
+    @apply shrink-0;
+  }
+
   .command-field {
     @apply inline-flex min-h-12 items-center gap-3 rounded-lg border border-white/15 bg-ink-950/55 px-3 text-sm text-white/70 backdrop-blur-md;
   }
@@ -232,6 +240,30 @@
 
   .site-footer {
     @apply border-t border-white/[0.07] bg-ink-950;
+  }
+
+  .site-footer-inner {
+    @apply mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-8 sm:px-8 lg:px-12;
+  }
+
+  .site-footer-meta {
+    @apply flex flex-wrap items-center gap-3;
+  }
+
+  .site-footer-kicker {
+    @apply font-mono text-[11px] tracking-[0.18em] text-white/35 uppercase;
+  }
+
+  .site-footer-rule {
+    @apply h-px w-6 bg-white/15;
+  }
+
+  .site-footer-author {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium text-white/55 transition-[color] duration-200 hover:text-white;
+  }
+
+  .site-footer-back {
+    @apply text-xs text-white/45 transition-[color] duration-200 hover:text-white;
   }
 
   .hero-tools {
@@ -430,6 +462,8 @@
   .background-card,
   .copy-button,
   .button-primary,
+  .button-secondary,
+  .site-footer-author ng-icon,
   .card-arrow {
     transition-duration: 0.01ms;
   }
