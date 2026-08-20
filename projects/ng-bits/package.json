@@ -1,6 +1,6 @@
 {
   "name": "@guillermogoni/ng-bits",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Animated WebGL and canvas backgrounds for Angular. Standalone, signal-driven, SSR-safe.",
   "author": "Guillermo Goni",
   "repository": {

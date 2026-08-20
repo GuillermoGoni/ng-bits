@@ -61,6 +61,52 @@ export class Hero {}
 
 Each component's inputs are documented on the class — hover them in your editor.
 
+### Embers
+
+`NgbEmbers` is a transparent Canvas 2D layer of small rising sparks. It does not require `ogl` or
+`three`, and can be used by itself or composed over another background.
+
+```ts
+import { NgbEmbers } from '@guillermogoni/ng-bits';
+
+@Component({
+  imports: [NgbEmbers],
+  // ...
+})
+export class Hero {}
+```
+
+```html
+<section class="relative isolate min-h-96 overflow-hidden bg-black">
+  <ngb-embers
+    class="absolute inset-0 -z-10"
+    [colors]="['#ffb15c', '#ff6b2c', '#ffe1a8']"
+    [count]="90"
+    [speed]="1"
+    [size]="1.6"
+    [glow]="1.2"
+    [turbulence]="0.8"
+    [wind]="0.15"
+    [spread]="0.8"
+    [opacity]="0.9"
+  />
+
+  <h1 class="relative z-10">Your content</h1>
+</section>
+```
+
+| Input        | Default                             | Description                                            |
+| ------------ | ----------------------------------- | ------------------------------------------------------ |
+| `colors`     | `['#ffb15c', '#ff6b2c', '#ffe1a8']` | Spark palette.                                         |
+| `count`      | `90`                                | Number of live sparks, clamped to `0..500`.            |
+| `speed`      | `1`                                 | Ascent and flicker speed.                              |
+| `size`       | `1.6`                               | Base spark width in CSS pixels.                        |
+| `glow`       | `1.2`                               | Strength of the additive halo.                         |
+| `turbulence` | `0.8`                               | Amount of irregular horizontal movement.               |
+| `wind`       | `0.15`                              | Horizontal drift; negative values move left.           |
+| `spread`     | `0.8`                               | Source width: `0` is centred, `1` uses the full width. |
+| `opacity`    | `0.9`                               | Layer opacity from `0` to `1`.                         |
+
 ## Shared inputs
 
 Every background inherits these from `NgbBackgroundBase`:
@@ -182,6 +228,52 @@ import { NgbAurora } from '@guillermogoni/ng-bits';
 })
 export class Hero {}
 ```
+
+### Embers
+
+`NgbEmbers` es una capa Canvas 2D transparente de pequeñas chispas ascendentes. No necesita `ogl`
+ni `three`, y se puede usar sola o combinada con otro fondo.
+
+```ts
+import { NgbEmbers } from '@guillermogoni/ng-bits';
+
+@Component({
+  imports: [NgbEmbers],
+  // ...
+})
+export class Hero {}
+```
+
+```html
+<section class="relative isolate min-h-96 overflow-hidden bg-black">
+  <ngb-embers
+    class="absolute inset-0 -z-10"
+    [colors]="['#ffb15c', '#ff6b2c', '#ffe1a8']"
+    [count]="90"
+    [speed]="1"
+    [size]="1.6"
+    [glow]="1.2"
+    [turbulence]="0.8"
+    [wind]="0.15"
+    [spread]="0.8"
+    [opacity]="0.9"
+  />
+
+  <h1 class="relative z-10">Tu contenido</h1>
+</section>
+```
+
+| Input        | Valor inicial                       | Descripción                                                     |
+| ------------ | ----------------------------------- | --------------------------------------------------------------- |
+| `colors`     | `['#ffb15c', '#ff6b2c', '#ffe1a8']` | Paleta de las chispas.                                          |
+| `count`      | `90`                                | Cantidad de chispas, limitada al rango `0..500`.                |
+| `speed`      | `1`                                 | Velocidad de ascenso y titileo.                                 |
+| `size`       | `1.6`                               | Ancho base de cada chispa en píxeles CSS.                       |
+| `glow`       | `1.2`                               | Intensidad del halo aditivo.                                    |
+| `turbulence` | `0.8`                               | Cantidad de movimiento horizontal irregular.                    |
+| `wind`       | `0.15`                              | Deriva horizontal; los valores negativos mueven a la izquierda. |
+| `spread`     | `0.8`                               | Ancho del origen: `0` lo centra y `1` ocupa todo el ancho.      |
+| `opacity`    | `0.9`                               | Opacidad de la capa entre `0` y `1`.                            |
 
 ### Estructura
 
