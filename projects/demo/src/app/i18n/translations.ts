@@ -52,6 +52,7 @@ export const DEMO_TRANSLATIONS: Record<DemoLanguage, TranslationObject> = {
       live: 'Live study',
     },
     backgrounds: {
+      embers: { tagline: 'Small glowing sparks that rise, flicker and bend with the wind.' },
       aurora: { tagline: 'A soft curtain anchored to the top edge, drifting on noise.' },
       'soft-aurora': { tagline: 'Three oversized blobs drifting on Lissajous paths.' },
       iridescence: { tagline: 'Thin-film interference bands folding over each other.' },
@@ -149,6 +150,7 @@ export const DEMO_TRANSLATIONS: Record<DemoLanguage, TranslationObject> = {
       Scale: 'Scale',
       Sharpness: 'Sharpness',
       Shimmer: 'Shimmer',
+      Size: 'Size',
       'Shock radius': 'Shock radius',
       'Shock strength': 'Shock strength',
       'Sim resolution': 'Sim resolution',
@@ -166,6 +168,7 @@ export const DEMO_TRANSLATIONS: Record<DemoLanguage, TranslationObject> = {
       'Velocity decay': 'Velocity decay',
       Warp: 'Warp',
       'Wave amplitude': 'Wave amplitude',
+      Wind: 'Wind',
       Width: 'Width',
       Active: 'Active',
       Background: 'Background',
@@ -263,6 +266,9 @@ export const DEMO_TRANSLATIONS: Record<DemoLanguage, TranslationObject> = {
       live: 'Estudio en vivo',
     },
     backgrounds: {
+      embers: {
+        tagline: 'Pequeñas chispas luminosas que ascienden, titilan y se curvan con el viento.',
+      },
       aurora: { tagline: 'Una cortina suave anclada al borde superior que deriva sobre ruido.' },
       'soft-aurora': {
         tagline: 'Tres manchas enormes que se desplazan en trayectorias de Lissajous.',
@@ -380,6 +386,7 @@ export const DEMO_TRANSLATIONS: Record<DemoLanguage, TranslationObject> = {
       Scale: 'Escala',
       Sharpness: 'Nitidez',
       Shimmer: 'Destello',
+      Size: 'Tamaño',
       'Shock radius': 'Radio de impacto',
       'Shock strength': 'Fuerza de impacto',
       'Sim resolution': 'Resolución de simulación',
@@ -397,6 +404,7 @@ export const DEMO_TRANSLATIONS: Record<DemoLanguage, TranslationObject> = {
       'Velocity decay': 'Disipación de velocidad',
       Warp: 'Deformación',
       'Wave amplitude': 'Amplitud de onda',
+      Wind: 'Viento',
       Width: 'Ancho',
       Active: 'Activo',
       Background: 'Fondo',

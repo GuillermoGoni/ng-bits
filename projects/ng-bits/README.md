@@ -53,6 +53,7 @@ export class Hero {}
 | `NgbPixelBlast`   | `ngb-pixel-blast`   | OGL       | Softer sibling: glyphs scale instead of toggling   |
 | `NgbThreads`      | `ngb-threads`       | OGL       | Fan of glowing filaments                           |
 | `NgbLiquidEther`  | `ngb-liquid-ether`  | Three.js  | Real GPU fluid simulation                          |
+| `NgbEmbers`       | `ngb-embers`        | Canvas 2D | Rising sparks with wind, turbulence and glow       |
 | `NgbShapeGrid`    | `ngb-shape-grid`    | Canvas 2D | Drifting tile grid that fills under the pointer    |
 | `NgbDotField`     | `ngb-dot-field`     | Canvas 2D | Fine gradient dot grid with a cursor lens bulge    |
 | `NgbDotGrid`      | `ngb-dot-grid`      | Canvas 2D | Springy dots, shockwave on click                   |
@@ -128,8 +129,8 @@ The catalogue takes visual cues from [ReactBits](https://reactbits.dev), but
 each Angular component has an independently designed renderer and an API that
 fits the effect instead of mirroring another project's implementation.
 
-These are **independent implementations, not ports.** ReactBits is published under MIT *plus a
-Commons Clause* that forbids redistributing its components "whether alone, in a bundle, or as a
+These are **independent implementations, not ports.** ReactBits is published under MIT _plus a
+Commons Clause_ that forbids redistributing its components "whether alone, in a bundle, or as a
 ported version", so none of its source is reused here. What the two projects share are the visual
 ideas and the underlying techniques — raymarched SDFs, Bayer dithering, Jacobi pressure solves,
 thin-film interference loops — which are long-standing public graphics practice, most of it
@@ -193,12 +194,12 @@ export class Hero {}
 
 Todos los fondos heredan estos inputs de `NgbBackgroundBase`:
 
-| Input | Valor por defecto | Descripción |
-| --- | --- | --- |
-| `paused` | `false` | Congela el loop sin liberar recursos GPU. |
-| `maxDpr` | `2` | Limita el `devicePixelRatio` para mejorar el rendimiento. |
-| `pauseWhenHidden` | `true` | Detiene el renderizado fuera del viewport. |
-| `reducedMotion` | `'respect'` | Renderiza un frame estático cuando el sistema pide reducir movimiento. |
+| Input             | Valor por defecto | Descripción                                                            |
+| ----------------- | ----------------- | ---------------------------------------------------------------------- |
+| `paused`          | `false`           | Congela el loop sin liberar recursos GPU.                              |
+| `maxDpr`          | `2`               | Limita el `devicePixelRatio` para mejorar el rendimiento.              |
+| `pauseWhenHidden` | `true`            | Detiene el renderizado fuera del viewport.                             |
+| `reducedMotion`   | `'respect'`       | Renderiza un frame estático cuando el sistema pide reducir movimiento. |
 
 ### Tecnologías y licencia
 

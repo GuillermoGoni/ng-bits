@@ -3,6 +3,7 @@ import {
   NgbAurora,
   NgbDotField,
   NgbDotGrid,
+  NgbEmbers,
   NgbFerrofluid,
   NgbGrainient,
   NgbIridescence,
@@ -59,6 +60,37 @@ const bool = (key: string, label: string): Control => ({ kind: 'boolean', key, l
 const color = (key: string, label: string): Control => ({ kind: 'color', key, label });
 
 export const BACKGROUNDS: readonly BackgroundEntry[] = [
+  {
+    slug: 'embers',
+    name: 'Embers',
+    tagline: 'Small glowing sparks that rise, flicker and bend with the wind.',
+    engine: 'Canvas 2D',
+    component: NgbEmbers,
+    surface: 'bg-black',
+    defaults: {
+      colors: ['#ffb15c', '#ff6b2c', '#ffe1a8'],
+      count: 90,
+      speed: 1,
+      size: 1.6,
+      glow: 1.2,
+      turbulence: 0.8,
+      wind: 0.15,
+      spread: 0.8,
+      opacity: 0.9,
+    },
+    tile: { count: 55, maxDpr: 1 },
+    controls: [
+      { kind: 'colors', key: 'colors', label: 'Colors', count: 3 },
+      num('count', 'Count', 0, 300, 1),
+      num('speed', 'Speed', 0, 3),
+      num('size', 'Size', 0.25, 5, 0.05),
+      num('glow', 'Glow', 0, 3),
+      num('turbulence', 'Turbulence', 0, 3),
+      num('wind', 'Wind', -2, 2, 0.05),
+      num('spread', 'Spread', 0, 1),
+      num('opacity', 'Opacity', 0, 1),
+    ],
+  },
   {
     slug: 'aurora',
     name: 'Aurora',

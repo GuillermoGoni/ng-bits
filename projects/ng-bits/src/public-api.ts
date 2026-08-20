@@ -12,6 +12,7 @@ export * from './lib/core/shader-chunks';
 export * from './lib/backgrounds/aurora/aurora';
 export * from './lib/backgrounds/dot-field/dot-field';
 export * from './lib/backgrounds/dot-grid/dot-grid';
+export * from './lib/backgrounds/embers/embers';
 export * from './lib/backgrounds/ferrofluid/ferrofluid';
 export * from './lib/backgrounds/grainient/grainient';
 export * from './lib/backgrounds/iridescence/iridescence';
