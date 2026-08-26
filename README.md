@@ -36,8 +36,8 @@ To use the library in an Angular application:
 npm install @guillermogoni/ng-bits ogl three
 ```
 
-Install `ogl` for OGL backgrounds and `three` for `NgbLiquidEther`. Both are optional peer
-dependencies; only install the engine required by the components you use.
+Install `ogl` for OGL backgrounds and `three` for `NgbLiquidEther` or `NgbDottedForms`. Both are
+optional peer dependencies; only install the engine required by the components you use.
 
 ```ts
 import { Component } from '@angular/core';
@@ -95,11 +95,11 @@ output.
 
 ### Component catalogue
 
-| Engine | Components |
-| --- | --- |
-| OGL | `NgbAurora`, `NgbSoftAurora`, `NgbIridescence`, `NgbSilk`, `NgbPlasma`, `NgbGrainient`, `NgbLightRays`, `NgbLightPillar`, `NgbPrism`, `NgbOrbitalAtlas`, `NgbFerrofluid`, `NgbPixel`, `NgbPixelBlast`, `NgbThreads` |
-| Three.js | `NgbLiquidEther` |
-| Canvas 2D | `NgbShapeGrid`, `NgbDotField`, `NgbDotGrid`, `NgbLetterGlitch` |
+| Engine    | Components                                                                                                                                                                                                                                                             |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| OGL       | `NgbAurora`, `NgbGradientWaves`, `NgbPrismaticCells`, `NgbSoftAurora`, `NgbIridescence`, `NgbOrb`, `NgbSilk`, `NgbPlasma`, `NgbGrainient`, `NgbLightRays`, `NgbLightPillar`, `NgbPrism`, `NgbOrbitalAtlas`, `NgbFerrofluid`, `NgbPixel`, `NgbPixelBlast`, `NgbThreads` |
+| Three.js  | `NgbLiquidEther`, `NgbDottedForms`                                                                                                                                                                                                                                     |
+| Canvas 2D | `NgbEmbers`, `NgbShapeGrid`, `NgbDotField`, `NgbDotGrid`, `NgbLetterGlitch`                                                                                                                                                                                            |
 
 Selectors use the `ngb-` prefix, for example `NgbAurora` → `<ngb-aurora />`. The complete input
 table for each component lives in [`projects/ng-bits/README.md`](projects/ng-bits/README.md) and
@@ -109,23 +109,23 @@ in the component source through typed Angular inputs.
 
 All backgrounds inherit these lifecycle inputs from `NgbBackgroundBase`:
 
-| Input | Default | Purpose |
-| --- | --- | --- |
-| `paused` | `false` | Freeze rendering without releasing GPU resources. |
-| `maxDpr` | `2` | Cap `devicePixelRatio` to trade sharpness for performance. |
-| `pauseWhenHidden` | `true` | Stop rendering while the host is outside the viewport. |
-| `reducedMotion` | `'respect'` | Render one static frame when the OS requests reduced motion. |
+| Input             | Default     | Purpose                                                      |
+| ----------------- | ----------- | ------------------------------------------------------------ |
+| `paused`          | `false`     | Freeze rendering without releasing GPU resources.            |
+| `maxDpr`          | `2`         | Cap `devicePixelRatio` to trade sharpness for performance.   |
+| `pauseWhenHidden` | `true`      | Stop rendering while the host is outside the viewport.       |
+| `reducedMotion`   | `'respect'` | Render one static frame when the OS requests reduced motion. |
 
 ### Technologies
 
-| Area | Technology | Role |
-| --- | --- | --- |
-| Framework | Angular 22 | Standalone components, signal inputs, routing and SSR. |
-| Language | TypeScript 6 | Typed component APIs and renderer code. |
-| OGL | OGL 1.x | Full-screen WebGL fragment backgrounds. |
-| 3D | Three.js 0.185.x | GPU fluid simulation for `NgbLiquidEther`. |
-| 2D | Canvas 2D API | Lightweight dot, grid and glyph backgrounds. |
-| Demo styling | Tailwind CSS 4 | Layout, tokens and responsive UI styling. |
+| Area         | Technology                          | Role                                                                            |
+| ------------ | ----------------------------------- | ------------------------------------------------------------------------------- |
+| Framework    | Angular 22                          | Standalone components, signal inputs, routing and SSR.                          |
+| Language     | TypeScript 6                        | Typed component APIs and renderer code.                                         |
+| OGL          | OGL 1.x                             | Full-screen WebGL fragment backgrounds.                                         |
+| 3D           | Three.js 0.185.x                    | GPU fluid simulation and point-shell geometry.                                  |
+| 2D           | Canvas 2D API                       | Lightweight dot, grid and glyph backgrounds.                                    |
+| Demo styling | Tailwind CSS 4                      | Layout, tokens and responsive UI styling.                                       |
 | Demo runtime | Angular CSR; optional SSR + Express | Client-only development by default, with server rendering available explicitly. |
 
 ### Development commands
@@ -189,8 +189,8 @@ Para usar la librería en una aplicación Angular:
 npm install @guillermogoni/ng-bits ogl three
 ```
 
-Instala `ogl` para los fondos OGL y `three` para `NgbLiquidEther`. Ambos son peer dependencies
-opcionales: instala solamente el motor que necesiten los componentes elegidos.
+Instala `ogl` para los fondos OGL y `three` para `NgbLiquidEther` o `NgbDottedForms`. Ambos son peer
+dependencies opcionales: instala solamente el motor que necesiten los componentes elegidos.
 
 ```ts
 import { Component } from '@angular/core';
@@ -226,7 +226,7 @@ y `src/lib/backgrounds/` (un componente standalone por fondo). La aplicación de
 `projects/demo/src/app/`: `registry.ts` registra componentes y controles, `pages/` contiene galería
 y preview, `shared/` contiene controles reutilizables e `i18n/` contiene las traducciones.
 
-El catálogo actual incluye 14 fondos OGL, `NgbLiquidEther` con Three.js y cuatro fondos Canvas 2D.
+El catálogo actual incluye 17 fondos OGL, dos fondos Three.js y cinco fondos Canvas 2D.
 La lista completa y los inputs de cada componente están en [`projects/ng-bits/README.md`](projects/ng-bits/README.md).
 
 ### Tecnologías
@@ -234,7 +234,7 @@ La lista completa y los inputs de cada componente están en [`projects/ng-bits/R
 - Angular 22, componentes standalone, signals, router y SSR.
 - TypeScript 6.
 - OGL 1.x para shaders WebGL a pantalla completa.
-- Three.js 0.185.x para la simulación de fluidos de `NgbLiquidEther`.
+- Three.js 0.185.x para la simulación de fluidos y las geometrías de puntos.
 - Canvas 2D para fondos ligeros de puntos, grillas y glifos.
 - Tailwind CSS 4 para la interfaz de la demo.
 - Angular CSR por defecto; SSR + Express opcional para renderizado en servidor e hidratación.

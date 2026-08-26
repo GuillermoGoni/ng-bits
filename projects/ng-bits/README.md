@@ -36,28 +36,32 @@ export class Hero {}
 
 ## Backgrounds
 
-| Component         | Selector            | Engine    | Notes                                              |
-| ----------------- | ------------------- | --------- | -------------------------------------------------- |
-| `NgbAurora`       | `ngb-aurora`        | OGL       | Soft curtain anchored to the top edge, transparent |
-| `NgbSoftAurora`   | `ngb-soft-aurora`   | OGL       | Blurred drifting blobs, transparent                |
-| `NgbIridescence`  | `ngb-iridescence`   | OGL       | Thin-film interference bands, opaque               |
-| `NgbSilk`         | `ngb-silk`          | OGL       | Satin weave, opaque                                |
-| `NgbPlasma`       | `ngb-plasma`        | OGL       | Interfering sine fronts                            |
-| `NgbGrainient`    | `ngb-grainient`     | OGL       | Mesh gradient + film grain, opaque                 |
-| `NgbLightRays`    | `ngb-light-rays`    | OGL       | God rays from a configurable origin                |
-| `NgbLightPillar`  | `ngb-light-pillar`  | OGL       | Vertical volumetric shafts                         |
-| `NgbPrism`        | `ngb-prism`         | OGL       | Diffuse spectrum light with a prismatic caustic    |
-| `NgbOrbitalAtlas` | `ngb-orbital-atlas` | OGL       | Interrupted orbital arcs with moving satellites    |
-| `NgbFerrofluid`   | `ngb-ferrofluid`    | OGL       | Glowing iso-contours over two fused fluid layers   |
-| `NgbPixel`        | `ngb-pixel`         | OGL       | Bayer-dithered pixel field, crisp on/off cells     |
-| `NgbPixelBlast`   | `ngb-pixel-blast`   | OGL       | Softer sibling: glyphs scale instead of toggling   |
-| `NgbThreads`      | `ngb-threads`       | OGL       | Fan of glowing filaments                           |
-| `NgbLiquidEther`  | `ngb-liquid-ether`  | Three.js  | Real GPU fluid simulation                          |
-| `NgbEmbers`       | `ngb-embers`        | Canvas 2D | Rising sparks with wind, turbulence and glow       |
-| `NgbShapeGrid`    | `ngb-shape-grid`    | Canvas 2D | Drifting tile grid that fills under the pointer    |
-| `NgbDotField`     | `ngb-dot-field`     | Canvas 2D | Fine gradient dot grid with a cursor lens bulge    |
-| `NgbDotGrid`      | `ngb-dot-grid`      | Canvas 2D | Springy dots, shockwave on click                   |
-| `NgbLetterGlitch` | `ngb-letter-glitch` | Canvas 2D | Reshuffling character wall                         |
+| Component           | Selector              | Engine    | Notes                                                  |
+| ------------------- | --------------------- | --------- | ------------------------------------------------------ |
+| `NgbAurora`         | `ngb-aurora`          | OGL       | Soft curtain anchored to the top edge, transparent     |
+| `NgbGradientWaves`  | `ngb-gradient-waves`  | OGL       | Perspective waves fading into coloured haze            |
+| `NgbPrismaticCells` | `ngb-prismatic-cells` | OGL       | Dark glass Voronoi cells with spectral edges           |
+| `NgbSoftAurora`     | `ngb-soft-aurora`     | OGL       | Blurred drifting blobs, transparent                    |
+| `NgbIridescence`    | `ngb-iridescence`     | OGL       | Thin-film interference bands, opaque                   |
+| `NgbOrb`            | `ngb-orb`             | OGL       | Spectral shell with a pointer-driven reveal            |
+| `NgbSilk`           | `ngb-silk`            | OGL       | Satin weave, opaque                                    |
+| `NgbPlasma`         | `ngb-plasma`          | OGL       | Interfering sine fronts                                |
+| `NgbGrainient`      | `ngb-grainient`       | OGL       | Mesh gradient + film grain, opaque                     |
+| `NgbLightRays`      | `ngb-light-rays`      | OGL       | God rays from a configurable origin                    |
+| `NgbLightPillar`    | `ngb-light-pillar`    | OGL       | Vertical volumetric shafts                             |
+| `NgbPrism`          | `ngb-prism`           | OGL       | Diffuse spectrum light with a prismatic caustic        |
+| `NgbOrbitalAtlas`   | `ngb-orbital-atlas`   | OGL       | Interrupted orbital arcs with moving satellites        |
+| `NgbFerrofluid`     | `ngb-ferrofluid`      | OGL       | Glowing iso-contours over two fused fluid layers       |
+| `NgbPixel`          | `ngb-pixel`           | OGL       | Bayer-dithered pixel field, crisp on/off cells         |
+| `NgbPixelBlast`     | `ngb-pixel-blast`     | OGL       | Softer sibling: glyphs scale instead of toggling       |
+| `NgbThreads`        | `ngb-threads`         | OGL       | Fan of glowing filaments                               |
+| `NgbLiquidEther`    | `ngb-liquid-ether`    | Three.js  | Real GPU fluid simulation                              |
+| `NgbDottedForms`    | `ngb-dotted-forms`    | Three.js  | Rotating point-shell cube, sphere, torus or octahedron |
+| `NgbEmbers`         | `ngb-embers`          | Canvas 2D | Rising sparks with wind, turbulence and glow           |
+| `NgbShapeGrid`      | `ngb-shape-grid`      | Canvas 2D | Drifting tile grid that fills under the pointer        |
+| `NgbDotField`       | `ngb-dot-field`       | Canvas 2D | Fine gradient dot grid with a cursor lens bulge        |
+| `NgbDotGrid`        | `ngb-dot-grid`        | Canvas 2D | Springy dots, shockwave on click                       |
+| `NgbLetterGlitch`   | `ngb-letter-glitch`   | Canvas 2D | Reshuffling character wall                             |
 
 Each component's inputs are documented on the class — hover them in your editor.
 
@@ -134,7 +138,8 @@ If you need frames back:
 
 1. Lower `maxDpr` (`1.5` or even `1` is usually invisible on a background).
 2. For `NgbLiquidEther`, drop `simResolution` first — the simulation cost is independent of canvas size.
-3. `NgbFerrofluid` raymarches and is the most demanding background on low-end GPUs.
+3. `NgbGradientWaves` raymarches; choose `detail="low"` for gallery grids and lower-end GPUs.
+4. For `NgbDottedForms`, lower `density`; its point count grows quadratically for most shapes.
 
 `NgbOrbitalAtlas` is a lighter geometric option for hero sections: a single
 fragment pass with no textures, framebuffers, or raymarching.
@@ -198,7 +203,7 @@ npm i @guillermogoni/ng-bits ogl three
 ```
 
 `ogl` y `three` son peer dependencies opcionales. Instala `ogl` para los fondos OGL y `three` para
-`NgbLiquidEther`; no necesitas ambos si no utilizas sus respectivos componentes.
+`NgbLiquidEther` o `NgbDottedForms`; no necesitas ambos si no utilizas sus respectivos componentes.
 
 ### Uso
 
@@ -296,8 +301,8 @@ Todos los fondos heredan estos inputs de `NgbBackgroundBase`:
 ### Tecnologías y licencia
 
 La librería usa Angular 22 y TypeScript 6. OGL proporciona los shaders WebGL, Three.js la simulación
-de fluidos de `NgbLiquidEther` y Canvas 2D los fondos ligeros. La demo usa Tailwind CSS 4, Angular
-SSR y Express.
+de fluidos y las geometrías de puntos, y Canvas 2D los fondos ligeros. La demo usa Tailwind CSS 4,
+Angular SSR y Express.
 
 El proyecto se distribuye bajo la [Licencia MIT](../../LICENSE). Las implementaciones son propias;
 ReactBits es solo una referencia visual y no se reutiliza su código fuente.
