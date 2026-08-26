@@ -26,7 +26,7 @@ import {
 })
 export class InViewDirective {
   /** Extra margin around the viewport, in CSS pixels. */
-  readonly inViewMargin = input(300, { transform: numberAttribute });
+  readonly inViewMargin = input(0, { transform: numberAttribute });
 
   readonly visible = signal(false);
 
@@ -36,6 +36,11 @@ export class InViewDirective {
     const destroyRef = inject(DestroyRef);
 
     afterNextRender(() => {
+      if (typeof IntersectionObserver === 'undefined') {
+        this.visible.set(true);
+        return;
+      }
+
       const observer = new IntersectionObserver(
         (entries) => this.visible.set(entries.some((entry) => entry.isIntersecting)),
         { rootMargin: `${this.inViewMargin()}px` },

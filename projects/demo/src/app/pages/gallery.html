@@ -1,18 +1,20 @@
 <div id="top" class="gallery-page">
-  <section class="hero-section" aria-labelledby="hero-title">
+  <section class="hero-section" aria-labelledby="hero-title" appInView #heroView="inView">
     <div class="hero-tools">
       <app-language-switcher />
     </div>
     <div class="hero-field" aria-hidden="true">
-      <ngb-aurora
-        class="absolute inset-0 -z-10"
-        [colorStops]="['#363853', '#B497CF', '#5227FF']"
-        [amplitude]="1.66"
-        [blend]="0.5"
-        [speed]="2.79"
-        [intensity]="1"
-        [reducedMotion]="'ignore'"
-      />
+      @if (heroView.visible()) {
+        <ngb-aurora
+          class="absolute inset-0 -z-10"
+          [colorStops]="['#363853', '#B497CF', '#5227FF']"
+          [amplitude]="1.66"
+          [blend]="0.5"
+          [speed]="2.79"
+          [intensity]="1"
+          [reducedMotion]="'ignore'"
+        />
+      }
       <div class="hero-grain"></div>
       <div class="hero-veil"></div>
     </div>
