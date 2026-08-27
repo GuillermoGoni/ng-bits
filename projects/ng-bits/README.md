@@ -10,7 +10,15 @@ npm i @guillermogoni/ng-bits ogl three
 ```
 
 `ogl` and `three` are optional peer dependencies — install only what the backgrounds you use need
-(the engine is listed per component below). Tree-shaking keeps the one you skip out of your bundle.
+(the engine is listed per component below), and import from the matching entry point:
+
+- `@guillermogoni/ng-bits` — the shared base classes and Canvas 2D backgrounds. No engine required.
+- `@guillermogoni/ng-bits/ogl` — every OGL-powered background. Requires `ogl`.
+- `@guillermogoni/ng-bits/three` — `NgbLiquidEther` and `NgbDottedForms`. Requires `three`.
+
+Each entry point compiles to its own bundle, so `ogl` and `three` are never statically imported by
+code you didn't ask for — importing from the wrong root would otherwise require both packages on
+disk before a bundler can even start tree-shaking.
 
 ## Usage
 
@@ -25,7 +33,7 @@ Every background fills its parent, so position it and put your content above it:
 ```
 
 ```ts
-import { NgbAurora } from '@guillermogoni/ng-bits';
+import { NgbAurora } from '@guillermogoni/ng-bits/ogl';
 
 @Component({
   imports: [NgbAurora],
@@ -146,10 +154,13 @@ fragment pass with no textures, framebuffers, or raymarching.
 
 ## Building your own
 
-The base classes are exported. A new full-screen shader background is a fragment string plus a
-uniform map:
+The base classes are exported — `NgbBackgroundBase` and the shared helpers from the root entry
+point, `NgbOglBackgroundBase` from `@guillermogoni/ng-bits/ogl`. A new full-screen shader background
+is a fragment string plus a uniform map:
 
 ```ts
+import { NgbOglBackgroundBase, NgbUniforms } from '@guillermogoni/ng-bits/ogl';
+
 @Component({
   selector: 'ngb-my-thing',
   template: '',
@@ -204,6 +215,11 @@ npm i @guillermogoni/ng-bits ogl three
 
 `ogl` y `three` son peer dependencies opcionales. Instala `ogl` para los fondos OGL y `three` para
 `NgbLiquidEther` o `NgbDottedForms`; no necesitas ambos si no utilizas sus respectivos componentes.
+Importa desde el entry point que corresponda:
+
+- `@guillermogoni/ng-bits` — clases base compartidas y fondos Canvas 2D. Sin motor.
+- `@guillermogoni/ng-bits/ogl` — todos los fondos con OGL. Requiere `ogl`.
+- `@guillermogoni/ng-bits/three` — `NgbLiquidEther` y `NgbDottedForms`. Requiere `three`.
 
 ### Uso
 
@@ -225,7 +241,7 @@ encima mediante el contexto de capas del layout:
 ```
 
 ```ts
-import { NgbAurora } from '@guillermogoni/ng-bits';
+import { NgbAurora } from '@guillermogoni/ng-bits/ogl';
 
 @Component({
   imports: [NgbAurora],
@@ -282,9 +298,11 @@ export class Hero {}
 
 ### Estructura
 
-- `src/public-api.ts`: exports públicos de la librería.
-- `src/lib/core/`: ciclo de vida, resize, visibilidad, renderers OGL y chunks GLSL compartidos.
-- `src/lib/backgrounds/`: un componente standalone por fondo.
+- `src/public-api.ts`: entry point primario — ciclo de vida compartido y fondos Canvas 2D.
+- `src/lib/core/`: ciclo de vida, resize, visibilidad y chunks GLSL compartidos.
+- `src/lib/backgrounds/`: componentes Canvas 2D, sin motor.
+- `ogl/`: entry point secundario `@guillermogoni/ng-bits/ogl` — renderer OGL y sus componentes.
+- `three/`: entry point secundario `@guillermogoni/ng-bits/three` — componentes con Three.js.
 - `README.md`: API, inputs compartidos, rendimiento y ejemplos.
 
 ### Inputs compartidos

@@ -18,7 +18,9 @@ component:
 - Efficient by default: rendering pauses off-screen, in hidden tabs, or when reduced motion is respected.
 - Responsive: `ResizeObserver` keeps the canvas and shader resolution in sync.
 - Resilient: WebGL context loss is detected and the renderer is rebuilt automatically.
-- Tree-shakable: OGL and Three.js are optional peer dependencies.
+- Tree-shakable: OGL and Three.js backgrounds live in separate entry points
+  (`@guillermogoni/ng-bits/ogl`, `@guillermogoni/ng-bits/three`), so importing one engine never
+  pulls the other's module into your bundle.
 
 ### Quick start
 
@@ -37,11 +39,20 @@ npm install @guillermogoni/ng-bits ogl three
 ```
 
 Install `ogl` for OGL backgrounds and `three` for `NgbLiquidEther` or `NgbDottedForms`. Both are
-optional peer dependencies; only install the engine required by the components you use.
+optional peer dependencies; only install the engine required by the components you use, and import
+from the matching entry point:
+
+- `@guillermogoni/ng-bits` — Canvas 2D backgrounds and the shared base classes, no engine required.
+- `@guillermogoni/ng-bits/ogl` — OGL-powered backgrounds. Requires `ogl`.
+- `@guillermogoni/ng-bits/three` — Three.js-powered backgrounds (`NgbLiquidEther`, `NgbDottedForms`). Requires `three`.
+
+Each entry point compiles to its own bundle, so `ogl` and `three` are never statically imported by
+code you didn't ask for — critical for bundlers (Vite, esbuild) that resolve modules on disk before
+tree-shaking, which would otherwise require both packages installed regardless of which one you use.
 
 ```ts
 import { Component } from '@angular/core';
-import { NgbAurora } from '@guillermogoni/ng-bits';
+import { NgbAurora } from '@guillermogoni/ng-bits/ogl';
 
 @Component({
   standalone: true,
@@ -69,14 +80,19 @@ the `-z-10` pattern is safe when the parent creates the intended stacking contex
 
 ```text
 projects/
-├─ ng-bits/                         Publishable Angular library
-│  ├─ src/public-api.ts             Public exports
+├─ ng-bits/                         Publishable Angular library, three entry points
+│  ├─ src/public-api.ts             Primary entry: core lifecycle + Canvas 2D backgrounds
 │  ├─ src/lib/core/
 │  │  ├─ background-base.ts         Lifecycle, rAF loop, visibility and resize handling
-│  │  ├─ ogl-background-base.ts     OGL renderer and shared uniforms
 │  │  ├─ color.ts                   Color parsing helpers
 │  │  └─ shader-chunks.ts           Shared GLSL noise, UV, color and dithering chunks
-│  ├─ src/lib/backgrounds/           One standalone component per background
+│  ├─ src/lib/backgrounds/           Canvas 2D components (no WebGL engine)
+│  ├─ ogl/                           Secondary entry: @guillermogoni/ng-bits/ogl
+│  │  └─ src/lib/
+│  │     ├─ core/ogl-background-base.ts  OGL renderer and shared uniforms
+│  │     └─ backgrounds/             OGL-powered components
+│  ├─ three/                         Secondary entry: @guillermogoni/ng-bits/three
+│  │  └─ src/lib/backgrounds/        Three.js-powered components
 │  ├─ package.json
 │  └─ README.md                      Package-level API documentation
 └─ demo/                             CSR-by-default showcase with optional SSR
@@ -88,6 +104,12 @@ projects/
       ├─ shared/                     Copy button and language switcher
       └─ i18n/                        English and Spanish translations
 ```
+
+Engine-specific components physically live inside the entry point that owns them (`ogl/`, `three/`),
+not in the shared `src/lib/backgrounds/` tree — that separation is what keeps each published bundle
+from statically importing an engine it doesn't use. They still reach the shared core (lifecycle,
+color helpers, shader chunks) by importing `@guillermogoni/ng-bits` itself, the same way an external
+consumer would.
 
 The demo imports the library through the workspace TypeScript path, so shader changes can be
 previewed without rebuilding the package. `npm run build:lib` validates the publishable ng-packagr
@@ -142,11 +164,16 @@ npm test               # Run the workspace test targets
 
 ### Creating a background
 
-1. Add a standalone component under `projects/ng-bits/src/lib/backgrounds/`.
+1. Add a standalone component under the entry point that owns its engine:
+   `projects/ng-bits/ogl/src/lib/backgrounds/` for OGL, `projects/ng-bits/three/src/lib/backgrounds/`
+   for Three.js, or `projects/ng-bits/src/lib/backgrounds/` for a plain Canvas 2D renderer.
 2. Extend `NgbOglBackgroundBase` for a full-screen OGL shader, or `NgbBackgroundBase` for a custom
-   Canvas/Three.js renderer.
-3. Export the component from `projects/ng-bits/src/public-api.ts`.
-4. Add its metadata, defaults and controls to `projects/demo/src/app/registry.ts`.
+   Canvas/Three.js renderer. Import shared core symbols (`NgbBackgroundBase`, `NGB_BACKGROUND_STYLES`,
+   color helpers, shader chunks) from `@guillermogoni/ng-bits`, not by relative path — the entry
+   point's own `rootDir` can't reach outside its folder.
+3. Export the component from that entry point's `public-api.ts`.
+4. Add its metadata, defaults and controls to `projects/demo/src/app/registry.ts`, importing it from
+   `ng-bits`, `ng-bits/ogl`, or `ng-bits/three` to match.
 5. Document the public inputs and verify the demo route, reduced-motion behavior and resize behavior.
 
 ### Inspiration and licensing
@@ -171,7 +198,9 @@ Incluye:
 - Pausa automática fuera del viewport, en pestañas ocultas y con `prefers-reduced-motion`.
 - Seguimiento responsive mediante `ResizeObserver`.
 - Recuperación automática cuando se pierde el contexto WebGL.
-- Tree-shaking y motores opcionales: OGL y Three.js solo son necesarios para los componentes que los usan.
+- Tree-shaking real: los fondos OGL y Three.js viven en entry points separados
+  (`@guillermogoni/ng-bits/ogl`, `@guillermogoni/ng-bits/three`), así que importar un motor nunca
+  arrastra el módulo del otro a tu bundle.
 
 ### Inicio rápido
 
@@ -190,11 +219,16 @@ npm install @guillermogoni/ng-bits ogl three
 ```
 
 Instala `ogl` para los fondos OGL y `three` para `NgbLiquidEther` o `NgbDottedForms`. Ambos son peer
-dependencies opcionales: instala solamente el motor que necesiten los componentes elegidos.
+dependencies opcionales: instala solamente el motor que necesiten los componentes elegidos, e
+importa desde el entry point correspondiente:
+
+- `@guillermogoni/ng-bits` — fondos Canvas 2D y las clases base compartidas, sin motor necesario.
+- `@guillermogoni/ng-bits/ogl` — fondos con OGL. Requiere `ogl`.
+- `@guillermogoni/ng-bits/three` — fondos con Three.js (`NgbLiquidEther`, `NgbDottedForms`). Requiere `three`.
 
 ```ts
 import { Component } from '@angular/core';
-import { NgbAurora } from '@guillermogoni/ng-bits';
+import { NgbAurora } from '@guillermogoni/ng-bits/ogl';
 
 @Component({
   standalone: true,
@@ -220,9 +254,13 @@ tu layout; el patrón `-z-10` funciona cuando el padre crea el contexto de capas
 
 ### Estructura de la librería
 
-La librería publicable está en `projects/ng-bits`. Sus piezas principales son `src/public-api.ts`
-(exports públicos), `src/lib/core/` (ciclo de vida, resize, visibilidad, renderers y chunks GLSL)
-y `src/lib/backgrounds/` (un componente standalone por fondo). La aplicación demo vive en
+La librería publicable está en `projects/ng-bits` y tiene tres entry points. El primario
+(`src/public-api.ts`) expone el ciclo de vida compartido (`src/lib/core/`) y los fondos Canvas 2D
+(`src/lib/backgrounds/`), sin depender de ningún motor. `ogl/` y `three/` son entry points
+secundarios — cada uno con su propio `public-api.ts` y sus propios componentes bajo `src/lib/` —
+que compilan a bundles separados y solo importan el motor que usan. Los componentes de motor
+acceden al núcleo compartido importando `@guillermogoni/ng-bits`, igual que lo haría cualquier
+consumidor externo. La aplicación demo vive en
 `projects/demo/src/app/`: `registry.ts` registra componentes y controles, `pages/` contiene galería
 y preview, `shared/` contiene controles reutilizables e `i18n/` contiene las traducciones.
 
@@ -253,11 +291,16 @@ npm test               # Ejecuta los tests del workspace
 
 ### Crear un fondo nuevo
 
-1. Añade un componente standalone en `projects/ng-bits/src/lib/backgrounds/`.
+1. Añade un componente standalone en el entry point de su motor:
+   `projects/ng-bits/ogl/src/lib/backgrounds/` para OGL, `projects/ng-bits/three/src/lib/backgrounds/`
+   para Three.js, o `projects/ng-bits/src/lib/backgrounds/` para Canvas 2D puro.
 2. Extiende `NgbOglBackgroundBase` para un shader OGL a pantalla completa o `NgbBackgroundBase`
-   para un renderer Canvas/Three.js propio.
-3. Exporta el componente desde `projects/ng-bits/src/public-api.ts`.
-4. Registra nombre, motor, defaults y controles en `projects/demo/src/app/registry.ts`.
+   para un renderer Canvas/Three.js propio. Importa el núcleo compartido desde
+   `@guillermogoni/ng-bits`, no por ruta relativa — el `rootDir` del entry point no puede salir de
+   su propia carpeta.
+3. Exporta el componente desde el `public-api.ts` de ese entry point.
+4. Registra nombre, motor, defaults y controles en `projects/demo/src/app/registry.ts`, importándolo
+   desde `ng-bits`, `ng-bits/ogl` o `ng-bits/three` según corresponda.
 5. Documenta sus inputs públicos y comprueba la ruta demo, reduced motion y resize.
 
 ### Inspiración y licencia

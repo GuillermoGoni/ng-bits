@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowDown, lucideArrowUpRight, lucidePackage } from '@ng-icons/lucide';
-import { NgbAurora } from 'ng-bits';
+import { NgbAurora } from 'ng-bits/ogl';
 
 import { BACKGROUNDS, BackgroundEntry } from '../registry';
 import { CopyButton } from '../shared/copy-button';

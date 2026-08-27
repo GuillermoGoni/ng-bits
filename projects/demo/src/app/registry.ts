@@ -1,18 +1,13 @@
 import { Type } from '@angular/core';
+import { NgbDotField, NgbDotGrid, NgbEmbers, NgbLetterGlitch, NgbShapeGrid } from 'ng-bits';
 import {
   NgbAurora,
-  NgbDotField,
-  NgbDotGrid,
-  NgbDottedForms,
-  NgbEmbers,
   NgbFerrofluid,
   NgbGradientWaves,
   NgbGrainient,
   NgbIridescence,
-  NgbLetterGlitch,
   NgbLightPillar,
   NgbLightRays,
-  NgbLiquidEther,
   NgbOrb,
   NgbOrbitalAtlas,
   NgbPixel,
@@ -20,11 +15,11 @@ import {
   NgbPlasma,
   NgbPrism,
   NgbPrismaticCells,
-  NgbShapeGrid,
   NgbSilk,
   NgbSoftAurora,
   NgbThreads,
-} from 'ng-bits';
+} from 'ng-bits/ogl';
+import { NgbDottedForms, NgbLiquidEther } from 'ng-bits/three';
 
 /** One editable knob in the playground panel. */
 export type Control =

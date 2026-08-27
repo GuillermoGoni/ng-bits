@@ -8,7 +8,10 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "ng-bits": ["./projects/ng-bits/src/public-api.ts"]
+      "ng-bits": ["./projects/ng-bits/src/public-api.ts"],
+      "ng-bits/ogl": ["./projects/ng-bits/ogl/src/public-api.ts"],
+      "ng-bits/three": ["./projects/ng-bits/three/src/public-api.ts"],
+      "@guillermogoni/ng-bits": ["./projects/ng-bits/src/public-api.ts"]
     },
     "skipLibCheck": true,
     "isolatedModules": true,
