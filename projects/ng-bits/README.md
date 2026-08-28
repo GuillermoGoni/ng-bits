@@ -20,6 +20,29 @@ Each entry point compiles to its own bundle, so `ogl` and `three` are never stat
 code you didn't ask for — importing from the wrong root would otherwise require both packages on
 disk before a bundler can even start tree-shaking.
 
+## Migrating from 0.2.1 or earlier
+
+`0.2.2` split OGL and Three.js backgrounds into their own entry points (see above) so importing one
+engine never pulls the other into your bundle. If you imported anything besides `NgbEmbers`,
+`NgbShapeGrid`, `NgbDotField`, `NgbDotGrid` or `NgbLetterGlitch` from the package root, update the
+import path:
+
+```diff
+- import { NgbAurora } from '@guillermogoni/ng-bits';
++ import { NgbAurora } from '@guillermogoni/ng-bits/ogl';
+
+- import { NgbLiquidEther, NgbDottedForms } from '@guillermogoni/ng-bits';
++ import { NgbLiquidEther, NgbDottedForms } from '@guillermogoni/ng-bits/three';
+```
+
+`NgbOglBackgroundBase` and `NgbUniforms` moved to `@guillermogoni/ng-bits/ogl` too, if you extended
+them directly. `NgbBackgroundBase` and the Canvas 2D components stay at the package root — nothing to
+change for those.
+
+This is a breaking change shipped as a patch release (`0.2.2`), which doesn't follow semver strictly.
+If your `package.json` pins a caret range like `^0.2.1`, either pin an exact version or update your
+imports before upgrading.
+
 ## Usage
 
 Every background fills its parent, so position it and put your content above it:
@@ -185,6 +208,56 @@ export class NgbMyThing extends NgbOglBackgroundBase {
 `uTime`, `uResolution` and `uAspect` are maintained for you. Set `trackPointer = true` to receive
 `this.pointer`, and the `NGB_CHUNK_*` exports give you noise, colour ramps and dithering.
 
+## Using with Astro
+
+`ng-bits` components render inside Astro as Angular islands through
+[`@analogjs/astro-angular`](https://www.npmjs.com/package/@analogjs/astro-angular). Install it
+alongside the Angular peers it needs:
+
+```bash
+npm i @analogjs/astro-angular @angular/{common,core,compiler,compiler-cli,platform-browser,platform-server} rxjs
+```
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import angular from '@analogjs/astro-angular';
+
+export default defineConfig({
+  integrations: [angular()],
+  vite: {
+    ssr: { noExternal: ['@guillermogoni/ng-bits'] },
+  },
+});
+```
+
+```astro
+---
+import { NgbAurora } from '@guillermogoni/ng-bits/ogl';
+---
+
+<section class="relative h-screen">
+  <NgbAurora client:only="angular" colorStops={['#66a1ff', '#B497CF', '#5227FF']} />
+</section>
+```
+
+Two things worth knowing:
+
+- Use `client:only="angular"`, not `client:load` or `client:visible`. Backgrounds render nothing
+  useful on the server anyway — the `isPlatformBrowser` guard skips canvas creation during SSR — so
+  server-rendering them first just adds a hydration pass that replaces empty markup with more empty
+  markup.
+- Give the host element an explicit size. Astro's `<astro-island>` wrapper has no default height,
+  and the background fills whatever box it's given (`h-screen`, a fixed height, etc.).
+
+**This is not the same thing as AnalogJS.** [AnalogJS](https://analogjs.org) — the full-stack Angular
+meta-framework, built on Vite with file-based routing — is a different project from the Astro
+integration above, despite the shared name and maintainer. An AnalogJS app *is* a standard Angular
+application, so `ng-bits` needs no adapter there at all: import and use components exactly as in any
+Angular project, same as the rest of this README. `@analogjs/astro-angular` is specifically the piece
+that lets Angular components run as islands *inside Astro* — that's the integration this section
+documents.
+
 ## Inspiration and licensing
 
 The catalogue takes visual cues from [ReactBits](https://reactbits.dev), but
@@ -220,6 +293,29 @@ Importa desde el entry point que corresponda:
 - `@guillermogoni/ng-bits` — clases base compartidas y fondos Canvas 2D. Sin motor.
 - `@guillermogoni/ng-bits/ogl` — todos los fondos con OGL. Requiere `ogl`.
 - `@guillermogoni/ng-bits/three` — `NgbLiquidEther` y `NgbDottedForms`. Requiere `three`.
+
+### Migración desde 0.2.1 o anteriores
+
+`0.2.2` separó los fondos OGL y Three.js en sus propios entry points (ver arriba) para que importar
+un motor nunca arrastre el otro al bundle. Si importabas algo más allá de `NgbEmbers`,
+`NgbShapeGrid`, `NgbDotField`, `NgbDotGrid` o `NgbLetterGlitch` desde la raíz del paquete, actualiza
+la ruta de import:
+
+```diff
+- import { NgbAurora } from '@guillermogoni/ng-bits';
++ import { NgbAurora } from '@guillermogoni/ng-bits/ogl';
+
+- import { NgbLiquidEther, NgbDottedForms } from '@guillermogoni/ng-bits';
++ import { NgbLiquidEther, NgbDottedForms } from '@guillermogoni/ng-bits/three';
+```
+
+`NgbOglBackgroundBase` y `NgbUniforms` también se movieron a `@guillermogoni/ng-bits/ogl`, si
+extendías esas clases directamente. `NgbBackgroundBase` y los componentes Canvas 2D siguen en la
+raíz del paquete — no requieren cambios.
+
+Es un cambio breaking publicado como patch (`0.2.2`), que no sigue semver estrictamente. Si tu
+`package.json` fija un rango caret como `^0.2.1`, fija una versión exacta o actualiza tus imports
+antes de actualizar.
 
 ### Uso
 
@@ -315,6 +411,56 @@ Todos los fondos heredan estos inputs de `NgbBackgroundBase`:
 | `maxDpr`          | `2`               | Limita el `devicePixelRatio` para mejorar el rendimiento.              |
 | `pauseWhenHidden` | `true`            | Detiene el renderizado fuera del viewport.                             |
 | `reducedMotion`   | `'respect'`       | Renderiza un frame estático cuando el sistema pide reducir movimiento. |
+
+### Uso con Astro
+
+Los componentes de `ng-bits` se renderizan en Astro como islas Angular mediante
+[`@analogjs/astro-angular`](https://www.npmjs.com/package/@analogjs/astro-angular). Instálalo junto
+a los peers de Angular que necesita:
+
+```bash
+npm i @analogjs/astro-angular @angular/{common,core,compiler,compiler-cli,platform-browser,platform-server} rxjs
+```
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import angular from '@analogjs/astro-angular';
+
+export default defineConfig({
+  integrations: [angular()],
+  vite: {
+    ssr: { noExternal: ['@guillermogoni/ng-bits'] },
+  },
+});
+```
+
+```astro
+---
+import { NgbAurora } from '@guillermogoni/ng-bits/ogl';
+---
+
+<section class="relative h-screen">
+  <NgbAurora client:only="angular" colorStops={['#66a1ff', '#B497CF', '#5227FF']} />
+</section>
+```
+
+Dos cosas a tener en cuenta:
+
+- Usa `client:only="angular"`, no `client:load` ni `client:visible`. Los fondos no renderizan nada
+  útil en el servidor de todas formas — el guard `isPlatformBrowser` evita crear el canvas durante
+  SSR —, así que renderizarlos primero en servidor solo agrega una hidratación que reemplaza marcado
+  vacío por más marcado vacío.
+- Dale al elemento host un tamaño explícito. El wrapper `<astro-island>` de Astro no tiene alto por
+  defecto, y el fondo llena la caja que le den (`h-screen`, una altura fija, etc.).
+
+**Esto no es lo mismo que AnalogJS.** [AnalogJS](https://analogjs.org) — el meta-framework fullstack
+de Angular, construido sobre Vite con ruteo por archivos — es un proyecto distinto de la integración
+de Astro de arriba, aunque compartan nombre y mantenedor. Una app de AnalogJS *es* una aplicación
+Angular estándar, así que `ng-bits` no necesita ningún adaptador ahí: los componentes se importan y
+usan igual que en cualquier proyecto Angular, como el resto de este README. `@analogjs/astro-angular`
+es específicamente la pieza que permite que componentes Angular corran como islas *dentro de
+Astro* — esa es la integración que documenta esta sección.
 
 ### Tecnologías y licencia
 

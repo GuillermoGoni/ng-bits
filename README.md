@@ -76,6 +76,24 @@ export class Hero {}
 Every background fills its host element. Give the host a size and position the component yourself;
 the `-z-10` pattern is safe when the parent creates the intended stacking context.
 
+### Migrating from 0.2.1 or earlier
+
+`0.2.2` split OGL and Three.js backgrounds into their own entry points (`@guillermogoni/ng-bits/ogl`,
+`@guillermogoni/ng-bits/three`) so importing one engine never pulls the other into your bundle. If
+you imported anything besides `NgbEmbers`, `NgbShapeGrid`, `NgbDotField`, `NgbDotGrid` or
+`NgbLetterGlitch` from the package root, update the import path — full diff and details in the
+[migration note](projects/ng-bits/README.md#migrating-from-021-or-earlier). This is a breaking
+change shipped as a patch release, so pin an exact version if you can't update right away.
+
+### Using with Astro
+
+`ng-bits` components run in Astro as Angular islands via
+[`@analogjs/astro-angular`](https://www.npmjs.com/package/@analogjs/astro-angular) — the same
+renderer AnalogJS uses internally, though AnalogJS itself (the full Angular meta-framework) is a
+separate project where `ng-bits` needs no adapter at all, since an AnalogJS app is just a standard
+Angular app. Config, caveats and a working snippet are in the
+[Astro section](projects/ng-bits/README.md#using-with-astro) of the package README.
+
 ### Library structure
 
 ```text
@@ -251,6 +269,25 @@ export class Hero {}
 
 Cada fondo ocupa todo el elemento host. Define el tamaño del host y posiciona el componente desde
 tu layout; el patrón `-z-10` funciona cuando el padre crea el contexto de capas adecuado.
+
+### Migración desde 0.2.1 o anteriores
+
+`0.2.2` separó los fondos OGL y Three.js en sus propios entry points (`@guillermogoni/ng-bits/ogl`,
+`@guillermogoni/ng-bits/three`) para que importar un motor nunca arrastre el otro al bundle. Si
+importabas algo más allá de `NgbEmbers`, `NgbShapeGrid`, `NgbDotField`, `NgbDotGrid` o
+`NgbLetterGlitch` desde la raíz del paquete, actualiza la ruta de import — el diff completo está en
+la [nota de migración](projects/ng-bits/README.md#migración-desde-021-o-anteriores) del README del
+paquete. Es un cambio breaking publicado como patch, así que fija una versión exacta si no puedes
+actualizar de inmediato.
+
+### Uso con Astro
+
+Los componentes de `ng-bits` corren en Astro como islas Angular mediante
+[`@analogjs/astro-angular`](https://www.npmjs.com/package/@analogjs/astro-angular) — el mismo
+renderer que usa AnalogJS internamente, aunque AnalogJS en sí (el meta-framework Angular completo)
+es un proyecto separado donde `ng-bits` no necesita ningún adaptador, ya que una app de AnalogJS es
+simplemente una app Angular estándar. La configuración, las advertencias y un snippet funcional
+están en la [sección de Astro](projects/ng-bits/README.md#uso-con-astro) del README del paquete.
 
 ### Estructura de la librería
 
